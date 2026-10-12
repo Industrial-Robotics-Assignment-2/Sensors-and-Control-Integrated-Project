@@ -27,3 +27,26 @@ tracker. Constraint: the controller must use the estimated state, never ground t
     - A3 later week info generally; some ideas from like PfMS and that
 - Using estimated state rather than ground truth
     - Common sense lets be real
+
+
+
+
+1. Get 3d environment and robot put in; base simulation with 1 obstacle for detection after
+2. Create tests for each functionality. Should include for the final test a bunch of random obstacles to navigate around.
+    - Should include error reporting (and repeated trials for the final test specifically)
+3. Create code for object detection and distance measurement using LiDar. Add more obstacles as walls as part of this.
+4. Integrate camera for pose tracking and ArUco tag detection
+5. Combine LiDar and camera to enable position tracking/location mapping
+6. Setup logic for routing
+7. Testing 
+8. Create the video and that
+
+Throughout project, make comments on trade-offs per discussions to make documenting them later easier.
+    - Quantify
+    - Probably write as documentation as we go along, similar to what was required for PfMS but not as detailed
+
+Write info on what we are actually using and specs on github page
+Include install and run instructions on github
+
+Need to record completing at least 1 varied trial and include comparison of estimate state data compared to actual
+Write info on GenAI use as we go, in terms of tools and its usages
