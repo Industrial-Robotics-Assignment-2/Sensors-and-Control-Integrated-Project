@@ -1,0 +1,4 @@
+- Need to use a camera and LiDar sensor
+- ArUco tag identification with camera
+- Object and wall detection/distance sensing with LiDar
+- Integration of camera and LiDar data for navigation and mapping
