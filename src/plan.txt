@@ -36,6 +36,7 @@ tracker. Constraint: the controller must use the estimated state, never ground t
     - Should include error reporting (and repeated trials for the final test specifically)
 3. Create code for object detection and distance measurement using LiDar. Add more obstacles as walls as part of this.
 4. Integrate camera for pose tracking and ArUco tag detection
+    - visuallt dock to AruCo marked charging station.
 5. Combine LiDar and camera to enable position tracking/location mapping
 6. Setup logic for routing
 7. Testing 
