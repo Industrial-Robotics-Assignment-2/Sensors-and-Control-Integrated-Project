@@ -18,6 +18,9 @@ setup(
         
         # ─── ADD THIS LINE IF YOU HAVE A MODELS FOLDER FOR YOUR SDF ───
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
+
+        # adds scripts to the package
+        (os.path.join('share', package_name, 'scripts'), glob('scripts/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

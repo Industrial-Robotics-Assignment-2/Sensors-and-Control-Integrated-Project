@@ -20,6 +20,9 @@ def generate_launch_description():
     tb3_gazebo_dir = get_package_share_directory('turtlebot3_gazebo')
     sdf_file = os.path.join(tb3_gazebo_dir, 'models', 'turtlebot3_burger', 'model.sdf')
 
+    py_script_path = os.path.join(pkg_share, 'scripts', 'Hello World.py')
+    lidar_script_path = os.path.join(pkg_share, 'scripts', 'lidar_handler.py')
+
     tb3_parent_dir = os.path.dirname(tb3_desc_dir)
 
     return LaunchDescription([
@@ -59,6 +62,17 @@ def generate_launch_description():
             package='gazebo_ros',
             executable='spawn_entity.py',
             arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '0.0', '-y', '0.0', '-z', '0.01'],
+            output='screen'
+        ),
+
+        # # 1. Run a Python script directly
+        ExecuteProcess(
+            cmd=['python3', py_script_path],
+            output='screen'
+        ),
+
+        ExecuteProcess(
+            cmd=['python3', lidar_script_path],
             output='screen'
         )
     ])
