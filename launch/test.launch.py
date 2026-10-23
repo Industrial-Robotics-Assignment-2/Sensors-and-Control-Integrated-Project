@@ -25,7 +25,27 @@ def generate_launch_description():
 
     tb3_parent_dir = os.path.dirname(tb3_desc_dir)
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    rviz_config_dir = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
+    slam_toolbox_dir = get_package_share_directory('slam_toolbox')
     params_dir = os.path.join(pkg_share, 'parameters', 'params.yaml')
+
+    slam_toolbox_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(slam_toolbox_dir, 'launch', 'online_async_launch.py')
+        ),
+        launch_arguments={
+            'use_sim_time': 'true'
+        }.items()
+    )
+
+    nav2_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
+        ),
+        launch_arguments={
+            'use_sim_time': 'true'
+        }.items()
+    )
 
     return LaunchDescription([
 
@@ -56,7 +76,11 @@ def generate_launch_description():
             package='robot_state_publisher',
             executable='robot_state_publisher',
             output='screen',
-            parameters=[{'robot_description': robot_description_config}]
+            parameters=[{
+                'robot_description': robot_description_config,
+                'use_sim_time': True
+                }]
+            
         ),
 
         # 4. Spawn TurtleBot3 using model.sdf with diff drive plugin
@@ -76,5 +100,18 @@ def generate_launch_description():
             cmd=['python3', py_script_path],
             output='screen'
         ),
+
+        Node(
+            package='rviz2',
+            executable='rviz2',
+            name='rviz2',
+            output='screen',
+            arguments=['-d', rviz_config_dir],
+            parameters=[{'use_sim_time': True}]
+        ),
+
+        nav2_launch,
+
+        slam_toolbox_launch,
     ])
 
