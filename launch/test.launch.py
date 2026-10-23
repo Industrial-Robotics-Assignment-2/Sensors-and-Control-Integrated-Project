@@ -1,6 +1,7 @@
 import os
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, SetEnvironmentVariable
+from launch.actions import ExecuteProcess, SetEnvironmentVariable, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 import xacro
@@ -21,9 +22,10 @@ def generate_launch_description():
     sdf_file = os.path.join(tb3_gazebo_dir, 'models', 'turtlebot3_burger', 'model.sdf')
 
     py_script_path = os.path.join(pkg_share, 'scripts', 'Hello World.py')
-    lidar_script_path = os.path.join(pkg_share, 'scripts', 'lidar_handler.py')
 
     tb3_parent_dir = os.path.dirname(tb3_desc_dir)
+    nav2_bringup_dir = get_package_share_directory('nav2_bringup')
+    params_dir = os.path.join(pkg_share, 'parameters', 'params.yaml')
 
     return LaunchDescription([
 
@@ -62,18 +64,17 @@ def generate_launch_description():
             package='gazebo_ros',
             executable='spawn_entity.py',
             arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '0.0', '-y', '0.0', '-z', '0.01'],
-            output='screen'
+            output='screen',
+            parameters=[{
+                'robot_description': robot_description_config,
+                'use_sim_time': True
+            }]
         ),
 
-        # # 1. Run a Python script directly
+        # Run a Python script directly
         ExecuteProcess(
             cmd=['python3', py_script_path],
             output='screen'
         ),
-
-        ExecuteProcess(
-            cmd=['python3', lidar_script_path],
-            output='screen'
-        )
     ])
 

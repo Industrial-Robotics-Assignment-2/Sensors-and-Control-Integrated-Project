@@ -21,6 +21,8 @@ setup(
 
         # adds scripts to the package
         (os.path.join('share', package_name, 'scripts'), glob('scripts/*')),
+        
+        (os.path.join('share', package_name, 'config'), glob('config/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
