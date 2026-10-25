@@ -19,6 +19,10 @@ setup(
         # ─── ADD THIS LINE IF YOU HAVE A MODELS FOLDER FOR YOUR SDF ───
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
 
+        (os.path.join('share', package_name, 'models'), glob('models/*.urdf')),
+        (os.path.join('share', package_name, 'models', 'turtlebot3_burger_camera'),
+            glob('models/turtlebot3_burger_camera/*')),
+
         # adds scripts to the package
         (os.path.join('share', package_name, 'scripts'), glob('scripts/*')),
         
@@ -37,7 +41,6 @@ setup(
         ],
     },
     entry_points={
-        'console_scripts': [
-        ],
+        'console_scripts': [],
     },
 )

@@ -1,0 +1,33 @@
+# ROS 2 and colcon build output
+build/
+build/**
+install/
+install/**
+log/
+log/**
+
+# Local ROS runtime logs
+.ros/
+
+# Python caches and test output
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python packaging output
+*.egg-info/
+dist/
+
+# Local virtual environments and environment files
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store

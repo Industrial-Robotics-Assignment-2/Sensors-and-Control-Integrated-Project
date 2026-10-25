@@ -4,7 +4,6 @@ from launch.actions import ExecuteProcess, SetEnvironmentVariable, IncludeLaunch
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
-import xacro
 
 def generate_launch_description():
 
@@ -12,18 +11,15 @@ def generate_launch_description():
     world = os.path.join(pkg_share, 'worlds', 'snc_test_new_env.sdf')
 
     # 1. URDF for Robot State Publisher (TF transforms)
-    tb3_desc_dir = get_package_share_directory('turtlebot3_description')
-    xacro_file = os.path.join(tb3_desc_dir, 'urdf', 'turtlebot3_burger.urdf')
-    doc = xacro.process_file(xacro_file, mappings={'namespace': ''})
-    robot_description_config = doc.toxml()
+    urdf_file = os.path.join(pkg_share, 'models', 'turtlebot3_burger.urdf')
+    with open(urdf_file, 'r') as robot_file:
+        robot_description_config = robot_file.read()
 
-    # 2. SDF model for Gazebo (includes libgazebo_ros_diff_drive plugin)
-    tb3_gazebo_dir = get_package_share_directory('turtlebot3_gazebo')
-    sdf_file = os.path.join(tb3_gazebo_dir, 'models', 'turtlebot3_burger', 'model.sdf')
-
-    py_script_path = os.path.join(pkg_share, 'scripts', 'Hello World.py')
-
-    tb3_parent_dir = os.path.dirname(tb3_desc_dir)
+    # 2. SDF model for Gazebo Classic (includes ROS sensor plugins)
+    sdf_file = os.path.join(
+        pkg_share, 'models', 'turtlebot3_burger_camera', 'model.sdf'
+    )
+    aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     rviz_config_dir = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
     slam_toolbox_dir = get_package_share_directory('slam_toolbox')
@@ -50,23 +46,28 @@ def generate_launch_description():
 
     return LaunchDescription([
 
-        # Set GAZEBO_MODEL_PATH so Gazebo resolves meshes and SDF models
+        # Set GAZEBO_MODEL_PATH so Gazebo Classic resolves models.
         SetEnvironmentVariable(
             name='GAZEBO_MODEL_PATH',
             value=[
-                os.environ.get('GAZEBO_MODEL_PATH', ''), 
-                ':', tb3_parent_dir,
-                ':', os.path.join(tb3_gazebo_dir, 'models')
+                os.environ.get('GAZEBO_MODEL_PATH', ''),
+                ':', os.path.join(pkg_share, 'models')
             ]
         ),
 
-        # 1. Start Gazebo Server
+        SetEnvironmentVariable(
+            name='RMW_FASTRTPS_USE_SHM',
+            value='0'
+        ),
+
         ExecuteProcess(
-            cmd=['gzserver', '--verbose', '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so', world],
+            cmd=[
+                'gzserver', '--verbose', '-s', 'libgazebo_ros_init.so',
+                '-s', 'libgazebo_ros_factory.so', world
+            ],
             output='screen'
         ),
 
-        # 2. Start Gazebo Client
         ExecuteProcess(
             cmd=['gzclient'],
             output='screen'
@@ -84,21 +85,18 @@ def generate_launch_description():
             
         ),
 
-        # 4. Spawn TurtleBot3 using model.sdf with diff drive plugin
+        # 4. Spawn the project-owned robot model in Gazebo Classic.
         Node(
             package='gazebo_ros',
             executable='spawn_entity.py',
-            arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '-2.1', '-y', '0.0', '-z', '0.01'],
+            arguments=['-entity', 'turtlebot3', '-file', sdf_file,
+                       '-x', '-2.1', '-y', '0.0', '-z', '0.01'],
             output='screen',
-            parameters=[{
-                'robot_description': robot_description_config,
-                'use_sim_time': True
-            }]
         ),
 
         # Run a Python script directly
         ExecuteProcess(
-            cmd=['python3', py_script_path],
+            cmd=['python3', aruco_script_path],
             output='screen'
         ),
 
