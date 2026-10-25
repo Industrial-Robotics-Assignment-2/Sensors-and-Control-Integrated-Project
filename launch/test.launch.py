@@ -9,7 +9,7 @@ import xacro
 def generate_launch_description():
 
     pkg_share = get_package_share_directory('Sensors-and-Control-Integrated-Project')
-    world = os.path.join(pkg_share, 'worlds', 'snc_test.sdf')
+    world = os.path.join(pkg_share, 'worlds', 'snc_test_new_env.sdf')
 
     # 1. URDF for Robot State Publisher (TF transforms)
     tb3_desc_dir = get_package_share_directory('turtlebot3_description')
@@ -43,7 +43,8 @@ def generate_launch_description():
             os.path.join(nav2_bringup_dir, 'launch', 'navigation_launch.py')
         ),
         launch_arguments={
-            'use_sim_time': 'true'
+            'use_sim_time': 'true',
+            'params_file': params_dir,
         }.items()
     )
 
@@ -87,7 +88,7 @@ def generate_launch_description():
         Node(
             package='gazebo_ros',
             executable='spawn_entity.py',
-            arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '0.0', '-y', '0.0', '-z', '0.01'],
+            arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '-2.1', '-y', '0.0', '-z', '0.01'],
             output='screen',
             parameters=[{
                 'robot_description': robot_description_config,
@@ -114,4 +115,3 @@ def generate_launch_description():
 
         slam_toolbox_launch,
     ])
-

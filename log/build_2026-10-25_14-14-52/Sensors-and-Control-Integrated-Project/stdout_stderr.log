@@ -1,0 +1,16 @@
+running develop
+running egg_info
+writing Sensors_and_Control_Integrated_Project.egg-info/PKG-INFO
+writing dependency_links to Sensors_and_Control_Integrated_Project.egg-info/dependency_links.txt
+writing entry points to Sensors_and_Control_Integrated_Project.egg-info/entry_points.txt
+writing requirements to Sensors_and_Control_Integrated_Project.egg-info/requires.txt
+writing top-level names to Sensors_and_Control_Integrated_Project.egg-info/top_level.txt
+reading manifest file 'Sensors_and_Control_Integrated_Project.egg-info/SOURCES.txt'
+writing manifest file 'Sensors_and_Control_Integrated_Project.egg-info/SOURCES.txt'
+running build_ext
+Creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/lib/python3.10/site-packages/Sensors-and-Control-Integrated-Project.egg-link (link to .)
+
+Installed /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project
+running symlink_data
+creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/parameters
+symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/parameters/params.yaml -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/parameters

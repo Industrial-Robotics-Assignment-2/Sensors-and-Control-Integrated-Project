@@ -1,0 +1,16 @@
+[1.866s] Invoking command in '/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project': PYTHONPATH=/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/build --no-deps symlink_data
+[2.448s] running develop
+[2.796s] running egg_info
+[2.796s] writing Sensors_and_Control_Integrated_Project.egg-info/PKG-INFO
+[2.797s] writing dependency_links to Sensors_and_Control_Integrated_Project.egg-info/dependency_links.txt
+[2.797s] writing entry points to Sensors_and_Control_Integrated_Project.egg-info/entry_points.txt
+[2.797s] writing requirements to Sensors_and_Control_Integrated_Project.egg-info/requires.txt
+[2.798s] writing top-level names to Sensors_and_Control_Integrated_Project.egg-info/top_level.txt
+[2.800s] reading manifest file 'Sensors_and_Control_Integrated_Project.egg-info/SOURCES.txt'
+[2.804s] writing manifest file 'Sensors_and_Control_Integrated_Project.egg-info/SOURCES.txt'
+[2.806s] running build_ext
+[2.806s] Creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/lib/python3.10/site-packages/Sensors-and-Control-Integrated-Project.egg-link (link to .)
+[2.812s] 
+[2.812s] Installed /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project
+[2.813s] running symlink_data
+[2.858s] Invoked command in '/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project' returned '0': PYTHONPATH=/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/build --no-deps symlink_data

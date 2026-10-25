@@ -17,7 +17,8 @@ tracker. Constraint: the controller must use the estimated state, never ground t
 - turtlebot 3
     - Uses URDF and gazebo
     - Skidsteer robot
-    - 3 options; burger, waffle and wafflepi
+    - 3 options; bu    ros2 topic pub --rate 10 /cmd_vel geometry_msgs/msg/Twist \
+    "{linear: {x: 0.0}, angular: {z: 0.8}}"rger, waffle and wafflepi
         - Probably do burger due to the lower base size, making calculations easier
 - Camera visualised in MuJoCo or Swift/RVis
     - Probably easier to use RVis and Ros, as info on usage of Turtlebot with MuJoCo is limited

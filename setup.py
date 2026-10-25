@@ -23,6 +23,7 @@ setup(
         (os.path.join('share', package_name, 'scripts'), glob('scripts/*')),
         
         (os.path.join('share', package_name, 'config'), glob('config/*')),
+        (os.path.join('share', package_name, 'parameters'), glob('parameters/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

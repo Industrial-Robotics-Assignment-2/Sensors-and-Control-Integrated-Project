@@ -1,0 +1,32 @@
+[0.811s] Invoking command in '/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project': PYTHONPATH=/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/build --no-deps symlink_data
+[1.047s] running develop
+[1.186s] running egg_info
+[1.186s] creating Sensors_and_Control_Integrated_Project.egg-info
+[1.187s] writing Sensors_and_Control_Integrated_Project.egg-info/PKG-INFO
+[1.187s] writing dependency_links to Sensors_and_Control_Integrated_Project.egg-info/dependency_links.txt
+[1.187s] writing entry points to Sensors_and_Control_Integrated_Project.egg-info/entry_points.txt
+[1.187s] writing requirements to Sensors_and_Control_Integrated_Project.egg-info/requires.txt
+[1.187s] writing top-level names to Sensors_and_Control_Integrated_Project.egg-info/top_level.txt
+[1.187s] writing manifest file 'Sensors_and_Control_Integrated_Project.egg-info/SOURCES.txt'
+[1.189s] reading manifest file 'Sensors_and_Control_Integrated_Project.egg-info/SOURCES.txt'
+[1.189s] writing manifest file 'Sensors_and_Control_Integrated_Project.egg-info/SOURCES.txt'
+[1.191s] running build_ext
+[1.191s] Creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/lib/python3.10/site-packages/Sensors-and-Control-Integrated-Project.egg-link (link to .)
+[1.192s] 
+[1.192s] Installed /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project
+[1.192s] running symlink_data
+[1.192s] creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/ament_index
+[1.192s] creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/ament_index/resource_index
+[1.192s] creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/ament_index/resource_index/packages
+[1.192s] symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/resource/Sensors-and-Control-Integrated-Project -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/ament_index/resource_index/packages
+[1.192s] symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/package.xml -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project
+[1.193s] creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/launch
+[1.193s] symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/launch/test.launch.py -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/launch
+[1.193s] creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/worlds
+[1.193s] symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/worlds/snc_test_new_env.sdf -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/worlds
+[1.193s] symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/worlds/snc_test.sdf -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/worlds
+[1.194s] creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/scripts
+[1.194s] symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/scripts/turtlebot.py -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/scripts
+[1.194s] symbolically linking /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/scripts/Hello World.py -> /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/scripts
+[1.194s] creating /root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/share/Sensors-and-Control-Integrated-Project/config
+[1.216s] Invoked command in '/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project' returned '0': PYTHONPATH=/root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/root/git/Sensors-and-Control-Integrated-Project/install/Sensors-and-Control-Integrated-Project/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /root/git/Sensors-and-Control-Integrated-Project/build/Sensors-and-Control-Integrated-Project/build --no-deps symlink_data
