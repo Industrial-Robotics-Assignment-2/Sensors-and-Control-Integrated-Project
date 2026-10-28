@@ -80,6 +80,7 @@ class LQR_Controller(Node):
             [0.0, 1.0]
         ])
 
+        # === CONTROL LIBRARY CODE ===
         C = np.eye(3)
         D = np.zeros([3,2])
 
@@ -87,8 +88,15 @@ class LQR_Controller(Node):
         sys_d = ct.c2d(sys_c, self.T, method="zoh")
 
         K, S, E = ct.dlqr(sys_d.A, sys_d.B, self.Q_lqr, self.R_lqr)
-        # control library wasnt working so commented out
+        # === CONTROL LIBRARY CODE ===
 
+        """
+        for whatever reason the control library must use a later version of numpy that other libraries dont support
+        if youre getting an error that says smth like "A module that was compiled using NumPy 1.x cannot be run in NumPy 2.2.6 as it may crash."
+        then comment out the control library code and uncomment the not control library code. They should do the same thing. idfk man
+        """
+
+        # === NOT CONTROL LIBRARY CODE ===
         # A_d = np.eye(3) + A * self.T
         # B_d = B * self.T
 
@@ -97,6 +105,7 @@ class LQR_Controller(Node):
 
         # # Compute optimal LQR gain matrix K (2x3 matrix)
         # K = np.linalg.inv(self.R_lqr + B_d.T @ P @ B_d) @ (B_d.T @ P @ A_d)
+        # === NOT CONTROL LIBRARY CODE ===
 
         return K
 
@@ -125,6 +134,3 @@ def main(args=None):
 
 if __name__ == "__main__":
     main()
-
-
-    
