@@ -14,7 +14,7 @@ setup(
         ('share/' + package_name, ['package.xml']),
 
          # ─── ADD THIS LINE TO TRACK YOUR LAUNCH FILES ───
-        (os.path.join('share', package_name, 'launch'), glob('launch/*')),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
         
         # ─── ADD THIS LINE IF YOU HAVE A MODELS FOLDER FOR YOUR SDF ───
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
@@ -22,9 +22,16 @@ setup(
         (os.path.join('share', package_name, 'models'), glob('models/*.urdf')),
         (os.path.join('share', package_name, 'models', 'turtlebot3_burger_camera'),
             glob('models/turtlebot3_burger_camera/*')),
+        (os.path.join('share', package_name, 'models', 'charging_station'),
+            ['models/charging_station/model.config',
+             'models/charging_station/model.sdf']),
+        (os.path.join('share', package_name, 'models', 'charging_station', 'materials', 'scripts'),
+            glob('models/charging_station/materials/scripts/*')),
+        (os.path.join('share', package_name, 'models', 'charging_station', 'materials', 'textures'),
+            glob('models/charging_station/materials/textures/*')),
 
         # adds scripts to the package
-        (os.path.join('share', package_name, 'scripts'), glob('scripts/*')),
+        (os.path.join('share', package_name, 'scripts'), glob('scripts/*.py')),
         
         (os.path.join('share', package_name, 'config'), glob('config/*')),
         (os.path.join('share', package_name, 'parameters'), glob('parameters/*')),

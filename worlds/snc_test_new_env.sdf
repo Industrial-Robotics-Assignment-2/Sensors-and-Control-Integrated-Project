@@ -1109,6 +1109,11 @@
         <kinematic>0</kinematic>
       </link>
     </model>
+    <include>
+      <uri>model://charging_station</uri>
+      <name>charging_station</name>
+      <pose>2.0 0.0 0.8 0 -1.5707963 0</pose>
+    </include>
     <state world_name='default'>
       <sim_time>508 452000000</sim_time>
       <real_time>509 584472869</real_time>

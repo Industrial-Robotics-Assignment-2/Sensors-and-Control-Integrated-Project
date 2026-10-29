@@ -227,4 +227,12 @@
     </inertial>
   </link>
 
+  <link name="camera_link_optical"/>
+
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child link="camera_link_optical"/>
+    <origin xyz="0 0 0" rpy="-1.5707963 0 -1.5707963"/>
+  </joint>
+
 </robot>

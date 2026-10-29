@@ -10,6 +10,7 @@ def generate_launch_description():
 
     pkg_share = get_package_share_directory('Sensors-and-Control-Integrated-Project')
     world = os.path.join(pkg_share, 'worlds', 'snc_test_new_env.sdf')
+    aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
 
     # 1. URDF for Robot State Publisher (TF transforms)
     tb3_desc_dir = get_package_share_directory('turtlebot3_description')
@@ -57,6 +58,7 @@ def generate_launch_description():
             value=[
                 os.environ.get('GAZEBO_MODEL_PATH', ''), 
                 ':', tb3_parent_dir,
+                ':', os.path.join(pkg_share, 'models'),
                 ':', os.path.join(tb3_gazebo_dir, 'models')
             ]
         ),
@@ -95,6 +97,11 @@ def generate_launch_description():
                 'robot_description': robot_description_config,
                 'use_sim_time': True
             }]
+        ),
+
+        ExecuteProcess(
+            cmd=['python3', aruco_script_path],
+            output='screen'
         ),
 
         Node(

@@ -10,6 +10,7 @@ from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from rclpy.node import Node
 from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
+from tf2_geometry_msgs import do_transform_pose
 from sensor_msgs.msg import CameraInfo, Image
 from tf2_ros import Buffer, TransformException, TransformListener
 
@@ -21,10 +22,12 @@ class ArucoDetector(Node):
         super().__init__('aruco_detector')
 
         self.declare_parameter('marker_id', 0)
-        self.declare_parameter('marker_size', 0.10)
+        self.declare_parameter('marker_size', 0.80)
         self.declare_parameter('dictionary', 'DICT_4X4_50')
-        self.declare_parameter('image_topic', '/camera/image_raw')
-        self.declare_parameter('camera_info_topic', '/camera/camera_info')
+        self.declare_parameter('image_topic', '/camera/camera_sensor/image_raw')
+        self.declare_parameter(
+            'camera_info_topic', '/camera/camera_sensor/camera_info'
+        )
         self.declare_parameter('pose_topic', '/camera/aruco_pose')
         self.declare_parameter('target_frame', 'base_link')
         self.declare_parameter('publish_debug_image', True)
@@ -80,15 +83,22 @@ class ArucoDetector(Node):
             return
 
         image = self.bridge.imgmsg_to_cv2(message, desired_encoding='bgr8')
-        corners, ids, _ = cv2.aruco.detectMarkers(image, self.dictionary)
+        detection_scale = 0.5
+        detection_image = cv2.resize(
+            image, None, fx=detection_scale, fy=detection_scale,
+            interpolation=cv2.INTER_AREA,
+        )
+        corners, ids, _ = cv2.aruco.detectMarkers(
+            detection_image, self.dictionary
+        )
 
         if ids is not None:
             ids = ids.flatten()
             matching = np.flatnonzero(ids == self.marker_id)
             if matching.size:
-                marker_corners = corners[int(matching[0])]
+                marker_corners = corners[int(matching[0])] / detection_scale
                 rotation, translation = self._estimate_pose(marker_corners)
-                self._publish_pose(message, rotation, translation)
+                self._publish_pose(rotation, translation, message)
                 cv2.aruco.drawDetectedMarkers(
                     image, [marker_corners], np.array([[self.marker_id]])
                 )
@@ -99,6 +109,15 @@ class ArucoDetector(Node):
             self.debug_publisher.publish(debug_message)
 
     def _estimate_pose(self, corners):
+        if hasattr(cv2.aruco, 'estimatePoseSingleMarkers'):
+            rvecs, tvecs, _ = cv2.aruco.estimatePoseSingleMarkers(
+                np.asarray(corners, dtype=np.float32),
+                self.marker_size,
+                self.camera_matrix,
+                self.distortion,
+            )
+            return rvecs[0], tvecs[0]
+
         half_size = self.marker_size / 2.0
         object_points = np.array(
             [
@@ -122,14 +141,16 @@ class ArucoDetector(Node):
         return rvec, tvec.reshape(3)
 
     def _publish_pose(self, rotation, translation, image_message):
-        rotation_matrix, _ = cv2.Rodrigues(rotation)
+        rotation_vector = np.asarray(rotation, dtype=np.float64).reshape(3, 1)
+        translation_vector = np.asarray(translation, dtype=np.float64).reshape(3)
+        rotation_matrix, _ = cv2.Rodrigues(rotation_vector)
         quaternion = self._rotation_to_quaternion(rotation_matrix)
 
         camera_pose = PoseStamped()
         camera_pose.header = image_message.header
-        camera_pose.pose.position.x = float(translation[0])
-        camera_pose.pose.position.y = float(translation[1])
-        camera_pose.pose.position.z = float(translation[2])
+        camera_pose.pose.position.x = float(translation_vector[0])
+        camera_pose.pose.position.y = float(translation_vector[1])
+        camera_pose.pose.position.z = float(translation_vector[2])
         camera_pose.pose.orientation.x = quaternion[0]
         camera_pose.pose.orientation.y = quaternion[1]
         camera_pose.pose.orientation.z = quaternion[2]
