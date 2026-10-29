@@ -16,9 +16,6 @@ setup(
          # ─── ADD THIS LINE TO TRACK YOUR LAUNCH FILES ───
         (os.path.join('share', package_name, 'launch'), glob('launch/*')),
         
-        # ─── ADD THIS LINE TO TRACK YOUR MESHES FILES ───
-        (os.path.join('share', package_name, 'meshes'), glob('meshes/*')),
-        
         # ─── ADD THIS LINE IF YOU HAVE A MODELS FOLDER FOR YOUR SDF ───
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
 

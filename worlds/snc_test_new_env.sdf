@@ -1076,7 +1076,7 @@
 
         <collision name="collision">
           <geometry>
-            <mesh>
+            <mesh> 
               <uri>../meshes/dock.STL</uri>
               <scale>1.0 1.0 1.0</scale>
             </mesh>
@@ -1107,36 +1107,6 @@
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='unit_box'>
-        <pose>-1.39428 1.49936 0.499995 0 1e-05 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>-1.39428 1.49936 0.499995 0 1e-05 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0.034362 0.002626 -9.74273 -0.005255 0.068728 -2e-06</acceleration>
-          <wrench>0.034362 0.002626 -9.74273 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='unit_box_0'>
-        <pose>1.91093 -0.955528 0.500002 4e-06 -0 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>1.91093 -0.955528 0.500002 4e-06 -0 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0.002935 5.52105 -0.598319 1.52461 0.005577 0.001901</acceleration>
-          <wrench>0.002935 5.52105 -0.598319 0 -0 0</wrench>
-        </link>
-      </model>
-      <model name='unit_box_1'>
-        <pose>-2.2084 -2.18161 0.499993 0 6e-06 0</pose>
-        <scale>1 1 1</scale>
-        <link name='link'>
-          <pose>-2.2084 -2.18161 0.499993 0 6e-06 0</pose>
-          <velocity>0 0 0 0 -0 0</velocity>
-          <acceleration>0 0 -9.8 -0 -0 -0</acceleration>
-          <wrench>0 0 -9.8 0 -0 0</wrench>
         </link>
       </model>
       <light name='sun'>
