@@ -1001,9 +1001,9 @@
         <kinematic>0</kinematic>
       </link>
     </model>
-    <model name='centre_north'>
+    <model name='centre_north1'>
       <static>1</static>
-      <pose>-0.6 0 1 0 -0 0</pose>
+      <pose>-0.6 0.4375 1 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>1</mass>
@@ -1020,7 +1020,7 @@
         <collision name='collision'>
           <geometry>
             <box>
-              <size>0.2 1 2</size>
+              <size>0.2 0.125 2</size>
             </box>
           </geometry>
           <max_contacts>10</max_contacts>
@@ -1040,7 +1040,7 @@
         <visual name='visual'>
           <geometry>
             <box>
-              <size>0.2 1 2</size>
+              <size>0.2 0.125 2</size>
             </box>
           </geometry>
           <material>
@@ -1055,33 +1055,58 @@
         <kinematic>0</kinematic>
       </link>
     </model>
-    <model name="aruco_dock_station">
-      <static>true</static>
-      <pose>2.2 0 0.1675 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
+    <model name='centre_north2'>
+      <static>1</static>
+      <pose>-0.6 -0.4375 1 0 -0 0</pose>
+      <link name='link'>
+        <inertial>
+          <mass>1</mass>
+          <inertia>
+            <ixx>0.166667</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.166667</iyy>
+            <iyz>0</iyz>
+            <izz>0.166667</izz>
+          </inertia>
+          <pose>0 0 0 0 -0 0</pose>
+        </inertial>
+        <collision name='collision'>
           <geometry>
-            <mesh>
-              <uri>../meshes/dock.STL</uri>
-              <scale>1.0 1.0 1.0</scale>
-            </mesh>
+            <box>
+              <size>0.2 0.125 2</size>
+            </box>
           </geometry>
-           <material>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.2 0.125 2</size>
+            </box>
+          </geometry>
+          <material>
             <script>
               <name>Gazebo/Grey</name>
               <uri>file://media/materials/scripts/gazebo.material</uri>
             </script>
           </material>
         </visual>
-
-        <collision name="collision">
-          <geometry>
-            <mesh> 
-              <uri>../meshes/dock.STL</uri>
-              <scale>1.0 1.0 1.0</scale>
-            </mesh>
-          </geometry>
-        </collision>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
       </link>
     </model>
     <include>
@@ -1112,6 +1137,36 @@
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='unit_box'>
+        <pose>-1.39428 1.49936 0.499995 0 1e-05 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>-1.39428 1.49936 0.499995 0 1e-05 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0.034362 0.002626 -9.74273 -0.005255 0.068728 -2e-06</acceleration>
+          <wrench>0.034362 0.002626 -9.74273 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='unit_box_0'>
+        <pose>1.91093 -0.955528 0.500002 4e-06 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>1.91093 -0.955528 0.500002 4e-06 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0.002935 5.52105 -0.598319 1.52461 0.005577 0.001901</acceleration>
+          <wrench>0.002935 5.52105 -0.598319 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='unit_box_1'>
+        <pose>-2.2084 -2.18161 0.499993 0 6e-06 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose>-2.2084 -2.18161 0.499993 0 6e-06 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 -0 -0 -0</acceleration>
+          <wrench>0 0 -9.8 0 -0 0</wrench>
         </link>
       </model>
       <light name='sun'>
