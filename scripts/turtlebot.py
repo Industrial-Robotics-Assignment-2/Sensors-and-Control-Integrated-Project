@@ -69,14 +69,15 @@ class Turtlebot(Node):
         relative_x, relative_y, relative_theta = self.current_ekf_pose
         distance = velocity * dt
         turn = angular_velocity * dt
-        cos_turn = np.cos(turn)
-        sin_turn = np.sin(turn)
+        half_turn = turn / 2.0
+        cos_theta_mid = np.cos(relative_theta + half_turn)
+        sin_theta_mid = np.sin(relative_theta + half_turn)
 
-        translated_x = relative_x - distance
-        translated_y = relative_y
+        # translated_x = relative_x - distance
+        # translated_y = relative_y
         self.current_ekf_pose = np.array([
-            relative_x + distance * np.cos(relative_theta),
-            relative_y + distance * np.sin(relative_theta), #I don't know if this is right as i can't really test it, but i think/hope it is
+            relative_x + distance * cos_theta_mid,
+            relative_y + distance * sin_theta_mid,
             # cos_turn * translated_x + sin_turn * translated_y,
             # -sin_turn * translated_x + cos_turn * translated_y,
             self.wrap_angle(relative_theta - turn),
