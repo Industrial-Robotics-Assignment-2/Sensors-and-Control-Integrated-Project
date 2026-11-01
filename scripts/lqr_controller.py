@@ -2,9 +2,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 
-from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist, PoseStamped
-from sensor_msgs.msg import Imu
 from sensor_msgs.msg import LaserScan
 import control as ct
 import scipy
@@ -21,16 +19,37 @@ class LQR_Controller(Node):
                             depth=5
                         )
 
+        # subscribers
         self.estimated_pose = self.create_subscription(PoseStamped, '/ekf_estimated_pose', self.pose_callback, qos_profile=qos_profile)
         self.scan = self.create_subscription(LaserScan, '/scan', self.scan_callback, qos_profile=qos_profile)
 
-        # Interals
-        self.waypoints = np.array([
+        # publishers
+        self.cmd_vel = self.create_publisher(Twist, '/cmd_vel', qos_profile=qos_profile)
 
+        # Interals
+        self.current_pose = np.array([
+            0.0, # x
+            0.0, # y
+            0.0  # theta
         ])
-        self.v_ref = 0.18
+
+        self.waypoints = [ # just for testing change these later
+            [1.5, 0.0, 0.0],
+            [2.0, 1.5, np.pi / 2],
+            [0.0, 1.5, np.pi],
+            [0.0, 0.0, -np.pi / 2]
+        ]
+        self.current_waypoint_index = 0
+        self.current_scan = None
+
+        self.v_ref = 0.18 # m/s
+        self.w_ref = 0.2 # rad/s
+        self.k_rep = 0.35 # Repulsive gain for angular steering
+        self.max_v = 0.22 # m/s
+        self.max_w = 1.0 # rad/s
+        self.minimum_obstacle_dist = 0.30 # m
         self.T = 0.02 # 50hz
-        self.goal_tolerance = 0.2
+        self.goal_tolerance = 0.2 # m
 
         self.max_ey = 0.1  # m
         self.max_etheta = 0.2  # rad
@@ -40,11 +59,6 @@ class LQR_Controller(Node):
         self.Q_lqr = np.diag([2.0, 5.0, 1.2])
         # R_lqr penalizes control effort commands [delta_v, delta_omega]
         self.R_lqr = np.diag([0.2, 0.2])
-
-        self.X = {'x': 0.0,
-                  'y': 0.0,
-                  'theta': 0.0
-                  }
 
         # timer
         self.timer = self.create_timer(self.T, self.control_loop)
@@ -59,12 +73,11 @@ class LQR_Controller(Node):
         qw = msg.pose.orientation.w
         theta = 2.0 * np.arctan2(qz, qw)
 
-        self.X['x'] = x
-        self.X['y'] = y
-        self.X['theta'] = theta
+        pose = np.array([x,y,theta])
+        self.current_pose = pose
 
     def scan_callback(self, msg: LaserScan):
-        pass
+        self.current_scan = msg
 
     def compute_lqr_gain(self, v_ref: float):
 
@@ -109,8 +122,78 @@ class LQR_Controller(Node):
 
         return K
 
+    def compute_obstacle_repulsion(self):
+        if self.current_scan is None:
+            return 0.0, 0.0
+
+        ranges = np.array(self.current_scan.ranges)
+        angles = self.current_scan.angle_min + np.arange(len(ranges)) * self.current_scan.angle_increment
+
+        # Restrict cone to front view (-45 to +45 degrees)
+        valid_mask = (ranges > self.current_scan.range_min) & (ranges < self.minimum_obstacle_dist) & (np.abs(angles) < np.deg2rad(45.0))
+        
+        if not np.any(valid_mask):
+            return 0.0, 0.0
+
+        r_valid = ranges[valid_mask]
+        a_valid = angles[valid_mask]
+
+        # Calculate APF repulsive forces
+        rep_magnitude = (1.0 / r_valid - 1.0 / self.minimum_obstacle_dist) / (r_valid**2)
+        Fx = np.sum(-rep_magnitude * np.cos(a_valid))
+        Fy = np.sum(-rep_magnitude * np.sin(a_valid))
+
+        return Fx, Fy
+    
     def control_loop(self):
-        pass
+
+        target = self.waypoints[self.current_waypoint_index]
+        dx, dy, theta = target - self.current_pose
+        goal_dist = np.hypot(dx,dy)
+
+        if goal_dist < self.goal_tolerance:
+            if self.current_wpt_idx < len(self.waypoints) - 1:
+                self.current_wpt_idx += 1
+                self.get_logger().info(f'Switching to Waypoint #{self.current_wpt_idx}')
+                target = self.waypoints[self.current_wpt_idx]
+            else:
+                # Goal Reached: Stop Robot
+                self.publish_cmd(0.0, 0.0)
+                return
+
+        dtheta = (target[2] - theta + np.pi) % (2 * np.pi) - np.pi
+
+        e_x = np.cos(theta) * dx + np.sin(theta) * dy
+        e_y = -np.sin(theta) * dx + np.cos(theta) * dy
+        e_vec = np.array([e_x, e_y, dtheta])
+
+        K = self.compute_lqr_gain(self.v_ref)
+
+        # 3. Nominal LQR Control Inputs [delta_v, delta_w]
+        u_lqr = -K @ e_vec
+        v_cmd = self.v_ref + u_lqr[0]
+        w_cmd = u_lqr[1]
+
+        # 4. Apply Reactive Obstacle Avoidance Bias
+        Fx_rep, Fy_rep = self.compute_obstacle_repulsion()
+
+        if Fx_rep != 0.0 or Fy_rep != 0.0:
+            # Slow down linearly if obstacle is directly ahead
+            v_cmd = max(0.02, v_cmd + 0.05 * Fx_rep)
+            # Turn away from obstacle side
+            w_cmd += self.k_rep * Fy_rep
+
+        # 5. Velocity Saturation Limits
+        v_cmd = float(np.clip(v_cmd, 0.0, self.max_v))
+        w_cmd = float(np.clip(w_cmd, -self.max_w, self.max_w))
+
+        self.publish_cmd(v_cmd, w_cmd)
+
+    def publish_cmd(self, v: float, w: float):
+        twist = Twist()
+        twist.linear.x = v
+        twist.angular.z = w
+        self.cmd_vel.publish(twist)
 
 def main(args=None):
     rclpy.init(args=args)
