@@ -59,6 +59,8 @@ class LQR_Controller(Node):
         self.Q_lqr = np.diag([2.0, 5.0, 1.2])
         # R_lqr penalizes control effort commands [delta_v, delta_omega]
         self.R_lqr = np.diag([0.2, 0.2])
+        self.K_lqr = self.compute_lqr_gain(self.v_ref)
+
 
         # timer
         self.timer = self.create_timer(self.T, self.control_loop)
@@ -148,14 +150,15 @@ class LQR_Controller(Node):
     def control_loop(self):
 
         target = self.waypoints[self.current_waypoint_index]
-        dx, dy, theta = target - self.current_pose
+        dx, dy, _ = target - self.current_pose
+        theta = self.current_pose[2]
         goal_dist = np.hypot(dx,dy)
 
         if goal_dist < self.goal_tolerance:
-            if self.current_wpt_idx < len(self.waypoints) - 1:
-                self.current_wpt_idx += 1
-                self.get_logger().info(f'Switching to Waypoint #{self.current_wpt_idx}')
-                target = self.waypoints[self.current_wpt_idx]
+            if self.current_waypoint_index < len(self.waypoints) - 1:
+                self.current_waypoint_index += 1
+                self.get_logger().info(f'Switching to Waypoint #{self.current_waypoint_index}')
+                target = self.waypoints[self.current_waypoint_index]
             else:
                 # Goal Reached: Stop Robot
                 self.publish_cmd(0.0, 0.0)
@@ -167,10 +170,8 @@ class LQR_Controller(Node):
         e_y = -np.sin(theta) * dx + np.cos(theta) * dy
         e_vec = np.array([e_x, e_y, dtheta])
 
-        K = self.compute_lqr_gain(self.v_ref)
-
         # 3. Nominal LQR Control Inputs [delta_v, delta_w]
-        u_lqr = -K @ e_vec
+        u_lqr = -self.K_lqr @ e_vec
         v_cmd = self.v_ref + u_lqr[0]
         w_cmd = u_lqr[1]
 
