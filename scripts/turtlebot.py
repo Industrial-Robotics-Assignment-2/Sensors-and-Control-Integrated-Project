@@ -70,6 +70,8 @@ class Turtlebot(Node):
         distance = velocity * dt
         turn = angular_velocity * dt
         half_turn = turn / 2.0
+        cos_turn = np.cos(turn)
+        sin_turn = np.sin(turn)
         cos_theta_mid = np.cos(relative_theta + half_turn)
         sin_theta_mid = np.sin(relative_theta + half_turn)
 
