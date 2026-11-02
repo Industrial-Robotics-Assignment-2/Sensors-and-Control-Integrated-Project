@@ -9,7 +9,7 @@ import xacro
 def generate_launch_description():
 
     pkg_share = get_package_share_directory('Sensors-and-Control-Integrated-Project')
-    world = os.path.join(pkg_share, 'worlds', 'snc_test_new_env.sdf')
+    world = os.path.join(pkg_share, 'worlds', 'one_big_box.sdf')
     aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
 
     # 1. URDF for Robot State Publisher (TF transforms)
