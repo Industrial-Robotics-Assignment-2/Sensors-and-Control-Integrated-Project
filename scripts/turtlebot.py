@@ -124,14 +124,14 @@ class Turtlebot(Node):
         wz = msg.twist.twist.angular.z
 
         # copy current pose
-        px = self.current_pose[0]
-        py = self.current_pose[1]
-        theta = self.current_pose[2]
+        px = self.current_ekf_pose[0]
+        py = self.current_ekf_pose[1]
+        theta = self.current_ekf_pose[2]
 
         dt = self.T # make in sync with ros2 headers if having sync issues
 
         # === 2. State Propagation === 
-
+        
         EPS = 1e-5
 
         # straight line motion
@@ -139,31 +139,30 @@ class Turtlebot(Node):
         px_next = px + vx * dt * np.cos(theta)
         py_next = py + vx * dt * np.sin(theta)
         theta_next = theta + wz * dt
-
         theta_next = self.wrap_angle(theta_next)
-
-        # implement conditional exact arc integration if needed
+        
+        # Update the unified EKF state vector
+        self.current_ekf_pose[0] = px_next
+        self.current_ekf_pose[1] = py_next
+        self.current_ekf_pose[2] = theta_next
 
         # === 3. Compute state transition jacobian === 
 
         # again, euler method, implement conditional arc method if needed
         df_dtheta = np.array([-vx * dt * np.sin(theta), vx * dt * np.cos(theta), 0.0])
-
+        
+        # State Transition Jacobian
         F = np.eye(3)
-        F[0,2] = df_dtheta[0]
-        F[1,2] = df_dtheta[1]
+        F[0, 2] = df_dtheta[0]
+        F[1, 2] = df_dtheta[1]
 
-        # === 4. Covariance Propagation / Updating Internals === 
-
+        # Covariance Propagation
         self.P = F @ self.P @ F.T + self.Q
-        self.current_ekf_pose[0] = px_next
-        self.current_ekf_pose[1] = py_next
-        self.current_ekf_pose[2] = theta_next
 
-        # 5. === Create publish estimated pose ===
-        # probably dont need this
+        # Publish predicted pose
         published_pose = self.x2pose(self.current_ekf_pose)
-        self.pose_ekf.publish(published_pose)
+        self.pose_ekf.publish(published_pose) 
+
 
     def compute_lqr_gain(self, v_ref: float):
         # compute K for lqr, currently not used so ignore
@@ -228,11 +227,11 @@ class Turtlebot(Node):
         delta_X = K @ y_k
 
         # Updtae state with the correction vector
-        self.current_pose += delta_X
-        self.current_pose[2] = self.wrap_angle(self.current_pose[2])
+        self.current_ekf_pose += delta_X
+        self.current_ekf_pose[2] = self.wrap_angle(self.current_ekf_pose[2])
 
-        published_pose = self.x2pose(self.current_pose)
-        self.pose_ekf_X.publish(published_pose)
+        published_pose = self.x2pose(self.current_ekf_pose)
+        self.pose_ekf.publish(published_pose)
 
         # Update Error Covariance Matrix P (Joseph Form for numerical stability)
         I = np.eye(3)
