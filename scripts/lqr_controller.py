@@ -36,6 +36,7 @@ class LQR_Controller(Node):
         self.waypoints = [ # just for testing change these later
             [1.0, 1.0, 0.0],
             [2.0, 2.0, np.pi / 2],
+            [1.0, 1.0, 0.0],
             [0.0, 0.0, np.pi]
         ]
         self.current_waypoint_index = 0
@@ -46,7 +47,7 @@ class LQR_Controller(Node):
         self.k_rep = 0.35 # Repulsive gain for angular steering
         self.max_v = 0.22 # m/s
         self.max_w = 1.0 # rad/s
-        self.minimum_obstacle_dist = 0.45 # m
+        self.minimum_obstacle_dist = 0.60 # m
         self.T = 0.02 # 50hz
         self.goal_tolerance = 0.20 # m
 
@@ -59,7 +60,6 @@ class LQR_Controller(Node):
         # R_lqr penalizes control effort commands [delta_v, delta_omega]
         self.R_lqr = np.diag([0.2, 0.2])
         self.K_lqr = self.compute_lqr_gain(self.v_ref)
-
 
         # timer
         self.timer = self.create_timer(self.T, self.control_loop)
@@ -134,8 +134,8 @@ class LQR_Controller(Node):
         angles = self.current_scan.angle_min + np.arange(len(ranges)) * self.current_scan.angle_increment
 
         # Restrict cone to front view (-45 to +45 degrees)
-        max_angle = np.deg2rad(45.0)
-        valid_mask = (ranges > self.current_scan.range_min) & (ranges < self.minimum_obstacle_dist) & (np.abs(angles) < np.deg2rad(max_angle))
+        max_angle = np.deg2rad(60.0)
+        valid_mask = (ranges > self.current_scan.range_min) & (ranges < self.minimum_obstacle_dist) & (np.abs(angles) < max_angle)
         
         if not np.any(valid_mask):
             return 0.0, 0.0
@@ -147,8 +147,8 @@ class LQR_Controller(Node):
 
         # Calculate APF repulsive forces
         rep_magnitude = (1.0 / r_valid - 1.0 / self.minimum_obstacle_dist) / (r_valid**2) * angular_weight
-        Fx = np.sum(-rep_magnitude * np.cos(a_valid))
-        Fy = np.sum(-rep_magnitude * np.sin(a_valid))
+        Fx = np.mean(-rep_magnitude * np.cos(a_valid))
+        Fy = np.mean(-rep_magnitude * np.sin(a_valid))
 
         return Fx, Fy
     
@@ -182,6 +182,7 @@ class LQR_Controller(Node):
 
         e_x = np.cos(theta) * dx + np.sin(theta) * dy
         e_y = -np.sin(theta) * dx + np.cos(theta) * dy
+        
         e_vec = np.array([e_x, e_y, dtheta])
 
         # 3. Nominal LQR Control Inputs [delta_v, delta_w]
@@ -191,11 +192,23 @@ class LQR_Controller(Node):
 
         # 4. Apply Reactive Obstacle Avoidance Bias
         Fx_rep, Fy_rep = self.compute_obstacle_repulsion()
+        F_norm = np.hypot(Fx_rep, Fy_rep)
 
-        if Fx_rep != 0.0 or Fy_rep != 0.0:
-            # Slow down linearly if obstacle is directly ahead
-            v_cmd = max(0.02, v_cmd + 0.05 * Fx_rep)
-            # Turn away from obstacle side
+        # if Fx_rep != 0.0 or Fy_rep != 0.0:
+        #     # Slow down linearly if obstacle is directly ahead
+        #     v_cmd = max(0.02, v_cmd + 0.05 * Fx_rep)
+        #     # Turn away from obstacle side
+        #     w_cmd += self.k_rep * Fy_rep
+
+        if F_norm > 0.0:
+            # FIX: Slow down based on TOTAL force magnitude (frontal + corner proximity)
+            v_cmd = max(0.03, v_cmd - 0.08 * F_norm)
+
+            # Head-On Symmetry Break
+            if Fx_rep < -0.5 and np.abs(Fy_rep) < 0.05:
+                Fy_rep = -0.3
+
+            # Apply APF steering bias
             w_cmd += self.k_rep * Fy_rep
 
         # 5. Velocity Saturation Limits
