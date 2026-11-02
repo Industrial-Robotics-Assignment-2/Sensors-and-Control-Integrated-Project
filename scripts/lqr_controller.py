@@ -20,7 +20,7 @@ class LQR_Controller(Node):
                         )
 
         # subscribers
-        self.estimated_pose = self.create_subscription(PoseStamped, '/ekf_estimated_pose', self.pose_callback, qos_profile=qos_profile)
+        self.estimated_pose = self.create_subscription(PoseStamped, '/ekf_estimated_pose_X', self.pose_callback, qos_profile=qos_profile)
         self.scan = self.create_subscription(LaserScan, '/scan', self.scan_callback, qos_profile=qos_profile)
 
         # publishers
@@ -34,10 +34,9 @@ class LQR_Controller(Node):
         ])
 
         self.waypoints = [ # just for testing change these later
-            [1.5, 0.0, 0.0],
-            [2.0, 1.5, np.pi / 2],
-            [0.0, 1.5, np.pi],
-            [0.0, 0.0, -np.pi / 2]
+            [1.0, 1.0, 0.0],
+            [2.0, 2.0, np.pi / 2],
+            [0.0, 0.0, np.pi]
         ]
         self.current_waypoint_index = 0
         self.current_scan = None
@@ -47,9 +46,9 @@ class LQR_Controller(Node):
         self.k_rep = 0.35 # Repulsive gain for angular steering
         self.max_v = 0.22 # m/s
         self.max_w = 1.0 # rad/s
-        self.minimum_obstacle_dist = 0.30 # m
+        self.minimum_obstacle_dist = 0.45 # m
         self.T = 0.02 # 50hz
-        self.goal_tolerance = 0.2 # m
+        self.goal_tolerance = 0.20 # m
 
         self.max_ey = 0.1  # m
         self.max_etheta = 0.2  # rad
@@ -64,6 +63,9 @@ class LQR_Controller(Node):
 
         # timer
         self.timer = self.create_timer(self.T, self.control_loop)
+        self.get_logger().info(
+            'LQR Controller is Online'
+        )
 
     def pose_callback(self, msg: PoseStamped):
 
@@ -90,9 +92,9 @@ class LQR_Controller(Node):
         ])
 
         B = np.array([
-            [1.0, 0.0],
+            [-1.0, 0.0],
             [0.0, 0.0],
-            [0.0, 1.0]
+            [0.0, -1.0]
         ])
 
         # === CONTROL LIBRARY CODE ===
@@ -132,7 +134,8 @@ class LQR_Controller(Node):
         angles = self.current_scan.angle_min + np.arange(len(ranges)) * self.current_scan.angle_increment
 
         # Restrict cone to front view (-45 to +45 degrees)
-        valid_mask = (ranges > self.current_scan.range_min) & (ranges < self.minimum_obstacle_dist) & (np.abs(angles) < np.deg2rad(45.0))
+        max_angle = np.deg2rad(45.0)
+        valid_mask = (ranges > self.current_scan.range_min) & (ranges < self.minimum_obstacle_dist) & (np.abs(angles) < np.deg2rad(max_angle))
         
         if not np.any(valid_mask):
             return 0.0, 0.0
@@ -140,8 +143,10 @@ class LQR_Controller(Node):
         r_valid = ranges[valid_mask]
         a_valid = angles[valid_mask]
 
+        angular_weight = np.cos(a_valid * (np.pi / (2.0 * max_angle)))
+
         # Calculate APF repulsive forces
-        rep_magnitude = (1.0 / r_valid - 1.0 / self.minimum_obstacle_dist) / (r_valid**2)
+        rep_magnitude = (1.0 / r_valid - 1.0 / self.minimum_obstacle_dist) / (r_valid**2) * angular_weight
         Fx = np.sum(-rep_magnitude * np.cos(a_valid))
         Fy = np.sum(-rep_magnitude * np.sin(a_valid))
 
@@ -162,9 +167,18 @@ class LQR_Controller(Node):
             else:
                 # Goal Reached: Stop Robot
                 self.publish_cmd(0.0, 0.0)
+                self.get_logger().info(
+                    'Final waypoint reach. Stopping Turtlebot'
+                )
                 return
 
-        dtheta = (target[2] - theta + np.pi) % (2 * np.pi) - np.pi
+        if goal_dist > 0.35:
+            target_heading = np.arctan2(dy, dx)
+        else:
+            target_heading = target[2]
+
+        # dtheta = (target[2] - theta + np.pi) % (2 * np.pi) - np.pi
+        dtheta = self.wrap_angle(target_heading - theta)
 
         e_x = np.cos(theta) * dx + np.sin(theta) * dy
         e_y = -np.sin(theta) * dx + np.cos(theta) * dy
@@ -195,6 +209,11 @@ class LQR_Controller(Node):
         twist.linear.x = v
         twist.angular.z = w
         self.cmd_vel.publish(twist)
+
+    @staticmethod
+    def wrap_angle(angle: float):
+        """wraps angle to pi,-pi"""
+        return (angle + np.pi) % (2 * np.pi) - np.pi
 
 def main(args=None):
     rclpy.init(args=args)

@@ -3,11 +3,10 @@ import numpy.typing as npt
 import rclpy
 from rclpy.node import Node
 import open3d as o3d
-import control as ct
 
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist, PoseStamped
-from sensor_msgs.msg import Imu, LaserScan
+from geometry_msgs.msg import PoseStamped
+from sensor_msgs.msg import LaserScan
 
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
@@ -27,19 +26,13 @@ class Turtlebot(Node):
         self.scan = self.create_subscription(LaserScan, '/scan', self.scan_callback, qos_profile=qos_profile)
 
         # publishers
-        self.cmd_vel = self.create_publisher(Twist, '/cmd_vel', qos_profile=qos_profile)
-        self.pose_ekf = self.create_publisher(PoseStamped,'/ekf_estimated_pose', qos_profile=qos_profile)
-        self.pose_ekf_X = self.create_publisher(PoseStamped,'/ekf_estimated_pose_X', qos_profile=qos_profile)
+        self.pose_ekf = self.create_publisher(PoseStamped,'/ekf_estimated_pose', qos_profile=qos_profile) # dead reckoning pose - GLOBAL
+        self.pose_ekf_X = self.create_publisher(PoseStamped,'/ekf_estimated_pose_X', qos_profile=qos_profile) # ekf pose - GLOBAL
 
         # Internal
-        self.current_pose = np.array([ # State Space Model (X)
-            0.0, # x
-            0.0, # y
-            0.0  # theta
-            ])
         
         # EKF
-        self.current_ekf_pose = np.array([
+        self.current_ekf_pose = np.array([ # State Space Model of Turtlebot3
             0.0, # x
             0.0, # y
             0.0  # theta
@@ -47,8 +40,8 @@ class Turtlebot(Node):
         
         self.prev_ekf_pose = None
         self.prev_pts = None
+        self.prev_odom_time = None
 
-        self.T = 0.02 #50hz time interval
         self.P = np.diag([0.3**2, 0.3**2, np.deg2rad(10.0)**2]) # Error Covariance Matrix, how certain it is about its position
 
         self.sigma_xy = 0.02  # position uncertainty std dev per sample (meters)
@@ -57,28 +50,14 @@ class Turtlebot(Node):
         self.R = self.Q
         self.max_icp_dist = 0.2
 
-        # LQR
-        self.Q_lqr = np.diag([2.0, 5.0, 1.2]) # Q_lqr penalizes state tracking errors [e_x, e_y, e_theta]
-        self.R_lqr = np.diag([0.2, 0.2]) # R_lqr penalizes control effort commands [delta_v, delta_omega]
-        self.v_ref = 0.18 # reference velocity
-
         self.get_logger().info(
             'Turtlebot Node is online'
         )
 
-    def move(self, v=0.0, w=0.0):
-        """Publishes Twist command to /cmd_vel topic"""
-
-        q = Twist()
-        q.angular.z = float(w)
-        q.linear.x = float(v)
-
-        self.cmd_vel.publish(q)
-
     def scan_callback(self, msg: LaserScan):
 
         current_pts = self.laser_scan_to_pts(msg)
-        current_ekf_pose = self.current_ekf_pose
+        current_ekf_pose = np.copy(self.current_ekf_pose)
 
         if self.prev_pts is not None and self.prev_ekf_pose is not None:
 
@@ -88,7 +67,19 @@ class Turtlebot(Node):
             prev_pc = o3d.geometry.PointCloud()
             prev_pc.points = o3d.utility.Vector3dVector(self.prev_pts)
 
-            init = self.x2matrix(self.current_ekf_pose - self.prev_ekf_pose)
+            # 2. Compute global world displacement between scan snapshots
+            dx_w = current_ekf_pose[0] - self.prev_ekf_pose[0]
+            dy_w = current_ekf_pose[1] - self.prev_ekf_pose[1]
+            prev_th = self.prev_ekf_pose[2]
+
+            # 3. Rotate world displacement into local body frame of the previous scan
+            dx_b =  np.cos(prev_th) * dx_w + np.sin(prev_th) * dy_w
+            dy_b = -np.sin(prev_th) * dx_w + np.cos(prev_th) * dy_w
+            dth_b = self.wrap_angle(current_ekf_pose[2] - prev_th)
+
+            odom_trans_body = np.array([dx_b, dy_b, dth_b])
+
+            init = self.x2matrix(odom_trans_body)
             # init = np.eye(4)
 
             result = o3d.pipelines.registration.registration_icp(
@@ -107,12 +98,10 @@ class Turtlebot(Node):
             dtheta = np.arctan2(T[1, 0], T[0, 0])
             icp_trans = np.array([dx, dy, dtheta])
 
-            if icp_trans is not None:
-                # Pass relative laser odometry to your EKF correction function
-                self.ekf_update(icp_trans, (self.current_ekf_pose - self.prev_ekf_pose))
+            self.ekf_update(icp_trans, (odom_trans_body))
 
-        self.prev_pts = current_pts
-        self.prev_ekf_pose = current_ekf_pose
+        self.prev_pts = np.copy(current_pts)
+        self.prev_ekf_pose = np.copy(current_ekf_pose)
 
     def odom_callback(self,msg: Odometry):
 
@@ -122,13 +111,19 @@ class Turtlebot(Node):
         # vx is in the robots coordinate frame
         vx =  msg.twist.twist.linear.x
         wz = msg.twist.twist.angular.z
+        current_odom_time = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9 # get current time in seconds
 
         # copy current pose
         px = self.current_ekf_pose[0]
         py = self.current_ekf_pose[1]
         theta = self.current_ekf_pose[2]
 
-        dt = self.T # make in sync with ros2 headers if having sync issues
+        # dt = self.T # make in sync with ros2 headers if having sync issues
+        if self.prev_odom_time is None:
+            self.prev_odom_time = current_odom_time
+            return
+        
+        dt = current_odom_time - self.prev_odom_time
 
         # === 2. State Propagation === 
         
@@ -161,54 +156,11 @@ class Turtlebot(Node):
 
         # Publish predicted pose
         published_pose = self.x2pose(self.current_ekf_pose)
-        self.pose_ekf.publish(published_pose) 
-
-
-    def compute_lqr_gain(self, v_ref: float):
-        # compute K for lqr, currently not used so ignore
-        A = np.array([
-            [0.0, 0.0, 0.0],
-            [0.0, 0.0, v_ref],
-            [0.0, 0.0, 0.0]
-        ])
-
-        B = np.array([
-            [1.0, 0.0],
-            [0.0, 0.0],
-            [0.0, 1.0]
-        ])
-
-        # === CONTROL LIBRARY CODE ===
-        C = np.eye(3)
-        D = np.zeros([3,2])
-
-        sys_c = ct.ss(A, B, C, D)
-        sys_d = ct.c2d(sys_c, self.T, method="zoh")
-
-        K, S, E = ct.dlqr(sys_d.A, sys_d.B, self.Q_lqr, self.R_lqr)
-        # === CONTROL LIBRARY CODE ===
-
-        """
-        for whatever reason the control library must use a later version of numpy that other libraries dont support
-        if youre getting an error that says smth like "A module that was compiled using NumPy 1.x cannot be run in NumPy 2.2.6 as it may crash."
-        then comment out the control library code and uncomment the not control library code. They should do the same thing. idfk man
-        """
-
-        # === NOT CONTROL LIBRARY CODE ===
-        # A_d = np.eye(3) + A * self.T
-        # B_d = B * self.T
-
-        # # Solve Discrete Algebraic Riccati Equation (DARE)
-        # P = scipy.linalg.solve_discrete_are(A_d, B_d, self.Q_lqr, self.R_lqr)
-
-        # # Compute optimal LQR gain matrix K (2x3 matrix)
-        # K = np.linalg.inv(self.R_lqr + B_d.T @ P @ B_d) @ (B_d.T @ P @ A_d)
-        # === NOT CONTROL LIBRARY CODE ===
-
-        return K
+        self.pose_ekf.publish(published_pose)
+        self.prev_odom_time = current_odom_time
 
     def ekf_update(self, icp_trans: npt.NDArray[np.float64], odom_trans: npt.NDArray[np.float64]):
-        # compute the ekf update step and correct the state space vector
+        """compute the ekf update step and correct the state space vector"""
 
         # Innovation Residual (difference in odom and lidar measurements)
         y_k = icp_trans - odom_trans
@@ -224,14 +176,21 @@ class Turtlebot(Node):
         K = self.P @ H.T @ np.linalg.inv(S)
 
         # State Correction Vector
-        delta_X = K @ y_k
+        delta_X_body = K @ y_k
+
+        # Rotate local body correction into global world frame
+        theta = self.current_ekf_pose[2]
+        dx_world = np.cos(theta) * delta_X_body[0] - np.sin(theta) * delta_X_body[1]
+        dy_world = np.sin(theta) * delta_X_body[0] + np.cos(theta) * delta_X_body[1]
+        dtheta_world = delta_X_body[2]
 
         # Updtae state with the correction vector
-        self.current_ekf_pose += delta_X
-        self.current_ekf_pose[2] = self.wrap_angle(self.current_ekf_pose[2])
+        self.current_ekf_pose[0] += dx_world
+        self.current_ekf_pose[1] += dy_world
+        self.current_ekf_pose[2] = self.wrap_angle(self.current_ekf_pose[2] + dtheta_world)
 
         published_pose = self.x2pose(self.current_ekf_pose)
-        self.pose_ekf.publish(published_pose)
+        self.pose_ekf_X.publish(published_pose)
 
         # Update Error Covariance Matrix P (Joseph Form for numerical stability)
         I = np.eye(3)
@@ -239,7 +198,7 @@ class Turtlebot(Node):
         self.P = I_KH @ self.P @ I_KH.T + K @ self.R @ K.T
 
     @staticmethod
-    def wrap_angle(angle):
+    def wrap_angle(angle: float):
         """wraps angle to pi,-pi"""
         return (angle + np.pi) % (2 * np.pi) - np.pi
 
@@ -260,7 +219,7 @@ class Turtlebot(Node):
 
     @staticmethod
     def x2pose(X: npt.NDArray[np.float64]):
-        # convert 3x1 NDArray State Space Vector [x,y,theta] into a ROS2 PoseStamped
+        """convert 3x1 NDArray State Space Vector [x,y,theta] into a ROS2 PoseStamped"""
 
         published_pose = PoseStamped()
 
@@ -279,7 +238,7 @@ class Turtlebot(Node):
 
     @staticmethod
     def x2matrix(X: npt.NDArray[np.float64]):
-        # convert 3x1 NDArray State Space Vector [x,y,theta] into a 4x4 transformation matrix
+        """convert 3x1 NDArray State Space Vector [x,y,theta] into a 4x4 transformation matrix"""
 
         x,y,yaw = X
 
