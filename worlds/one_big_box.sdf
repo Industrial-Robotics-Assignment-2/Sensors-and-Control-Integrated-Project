@@ -353,35 +353,6 @@
         <kinematic>0</kinematic>
       </link>
     </model>
-        <model name="aruco_dock_station">
-      <static>true</static>
-      <pose>2.2 0 0.1675 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry>
-            <mesh>
-              <uri>../meshes/dock.STL</uri>
-              <scale>1.0 1.0 1.0</scale>
-            </mesh>
-          </geometry>
-           <material>
-            <script>
-              <name>Gazebo/Grey</name>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-            </script>
-          </material>
-        </visual>
-
-        <collision name="collision">
-          <geometry>
-            <mesh> 
-              <uri>../meshes/dock.STL</uri>
-              <scale>1.0 1.0 1.0</scale>
-            </mesh>
-          </geometry>
-        </collision>
-      </link>
-    </model>
     <model name='obs_1'>
       <static>1</static>
       <pose>1 0.6 0.2 0 -0 0</pose>

@@ -65,6 +65,7 @@ def generate_launch_description():
                 ':', os.path.join(tb3_gazebo_dir, 'models')
             ]
         ),
+        SetEnvironmentVariable(name='GAZEBO_MODEL_DATABASE_URI', value=''),
 
         # 1. Start Gazebo Server
         ExecuteProcess(
