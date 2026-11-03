@@ -320,39 +320,39 @@
             <box>
               <size>7.4 0.2 2</size>
             </box>
-          </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
+            </geometry>
+            <max_contacts>10</max_contacts>
+            <surface>
+              <contact>
                 <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
-        </collision>
-        <visual name='visual'>
-          <geometry>
-            <box>
-              <size>7.4 0.2 2</size>
-            </box>
-          </geometry>
-          <material>
-            <script>
-              <name>Gazebo/Grey</name>
-              <uri>file://media/materials/scripts/gazebo.material</uri>
-            </script>
-          </material>
-        </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
-      </link>
-    </model>
+              </contact>
+              <bounce/>
+              <friction>
+                <torsional>
+                  <ode/>
+                </torsional>
+                <ode/>
+              </friction>
+            </surface>
+          </collision>
+          <visual name='visual'>
+            <geometry>
+              <box>
+                <size>7.4 0.2 2</size>
+              </box>
+            </geometry>
+            <material>
+              <script>
+                <name>Gazebo/Grey</name>
+                <uri>file://media/materials/scripts/gazebo.material</uri>
+              </script>
+            </material>
+          </visual>
+          <self_collide>0</self_collide>
+          <enable_wind>0</enable_wind>
+          <kinematic>0</kinematic>
+        </link>
+      </model>
     <model name='obs_1'>
       <static>1</static>
       <pose>1 0.6 0.2 0 -0 0</pose>
@@ -734,7 +734,7 @@
     <include>
       <uri>model://charging_station</uri>
       <name>charging_station</name>
-      <pose>2.0 0.0 0.8 0 -1.5707963 0</pose>
+      <pose>0.0 0.0 0.14938 0 -1.5707963 0</pose>
     </include>
     <include>
       <uri>model://CAD/dock_frame</uri>
