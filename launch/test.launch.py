@@ -12,7 +12,7 @@ def generate_launch_description():
     world = os.path.join(pkg_share, 'worlds', 'one_big_box.sdf')
     aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
 
-    # 1. URDF for Robot State Publisher (TF transforms)
+    # 1. URDF for Robot State Publisher (TF transforms) 
     tb3_desc_dir = get_package_share_directory('turtlebot3_description')
     # xacro_file = os.path.join(tb3_desc_dir, 'urdf', 'turtlebot3_burger.urdf')
     xacro_file = os.path.join(pkg_share, 'urdf', 'turtlebot3_burger.urdf') # switch xacro to switch between default turtlebot and custom one with camera
@@ -30,6 +30,8 @@ def generate_launch_description():
     rviz_config_dir = os.path.join(nav2_bringup_dir, 'rviz', 'nav2_default_view.rviz')
     slam_toolbox_dir = get_package_share_directory('slam_toolbox')
     params_dir = os.path.join(pkg_share, 'parameters', 'nav2_params.yaml')
+    
+    
 
     slam_toolbox_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -59,6 +61,7 @@ def generate_launch_description():
                 os.environ.get('GAZEBO_MODEL_PATH', ''), 
                 ':', tb3_parent_dir,
                 ':', os.path.join(pkg_share, 'models'),
+                ':', os.path.join(pkg_share, 'models', 'CAD'),
                 ':', os.path.join(tb3_gazebo_dir, 'models')
             ]
         ),

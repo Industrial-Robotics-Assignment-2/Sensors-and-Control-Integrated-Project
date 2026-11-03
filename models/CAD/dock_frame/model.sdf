@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="dock_frame">
+    <static>true</static>  <!-- remove if it should move/fall -->
+    <link name="link">
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://dock_frame/meshes/dock.STL</uri>
+            <scale>1 1 1</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.6 0.6 0.6 1</ambient>
+          <diffuse>0.8 0.2 0.2 1</diffuse>
+        </material>
+      </visual>
+
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://dock_frame/meshes/dock.STL</uri>
+          </mesh>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
