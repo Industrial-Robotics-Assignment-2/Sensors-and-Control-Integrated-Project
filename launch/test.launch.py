@@ -12,6 +12,8 @@ def generate_launch_description():
     pkg_share = get_package_share_directory(pkg_name)
     world = os.path.join(pkg_share, 'worlds', 'one_big_box.sdf')
     aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
+    ekf_path = os.path.join(pkg_share, 'scripts', 'ekf_node.py')
+    lqr_path = os.path.join(pkg_share, 'scripts', 'lqr_controller.py')
 
     # 1. URDF for Robot State Publisher (TF transforms) 
     tb3_desc_dir = get_package_share_directory('turtlebot3_description')
@@ -104,48 +106,31 @@ def generate_launch_description():
             }]
         ),
 
-        # ExecuteProcess(
-        #     cmd=['python3', aruco_script_path],
-        #     output='screen'
-        # ),
-
-        # 5. EKF Estimation Node
-        # Node(
-        #     package=pkg_name,
-        #     executable='ekf_node',
-        #     name='turtlebot_ekf',
-        #     output='screen',
-        #     parameters=[{'use_sim_time': True}]
-        # ),
-
-        # # 6. LQR Trajectory Tracking & Obstacle Avoidance Node
-        # Node(
-        #     package=pkg_name,
-        #     executable='lqr_controller',
-        #     name='lqr_controller',
-        #     output='screen',
-        #     parameters=[{'use_sim_time': True}]
-        # ),
-
-        # # 7. ArUco Marker Detector Node
-        # Node(
-        #     package=pkg_name,
-        #     executable='aruco_detector',
-        #     name='aruco_detector',
-        #     output='screen',
-        #     parameters=[{'use_sim_time': True}]
-        # ),
-
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen',
-            arguments=['-d', rviz_config_dir],
-            parameters=[{'use_sim_time': True}]
+        ExecuteProcess(
+            cmd=['python3', aruco_script_path],
+            output='screen'
         ),
 
-        nav2_launch,
+        ExecuteProcess(
+            cmd=['python3', ekf_path],
+            output='screen'
+        ),
 
-        slam_toolbox_launch,
+        ExecuteProcess(
+            cmd=['python3', lqr_path],
+            output='screen'
+        ),
+
+        # Node(
+        #     package='rviz2',
+        #     executable='rviz2',
+        #     name='rviz2',
+        #     output='screen',
+        #     arguments=['-d', rviz_config_dir],
+        #     parameters=[{'use_sim_time': True}]
+        # ),
+
+        # nav2_launch,
+
+        # slam_toolbox_launch,
     ])

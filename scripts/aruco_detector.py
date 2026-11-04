@@ -104,9 +104,9 @@ class ArucoDetector(Node):
                 marker_corners = corners[int(matching[0])] / detection_scale
                 rotation, translation = self._estimate_pose(marker_corners)
                 self._publish_pose(rotation, translation, message)
-                self.get_logger().info(
-                    'Aruco Pose has been published'
-                )
+                # self.get_logger().info(
+                #     'Aruco Pose has been published'
+                # )
                 cv2.aruco.drawDetectedMarkers(
                     image, [marker_corners], np.array([[self.marker_id]])
                 )
