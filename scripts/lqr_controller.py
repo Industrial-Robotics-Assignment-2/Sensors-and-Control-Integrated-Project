@@ -2,10 +2,10 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 
-from geometry_msgs.msg import Twist, PoseStamped
+from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped
+from std_msgs.msg import Bool
 from sensor_msgs.msg import LaserScan
 import control as ct
-import scipy
 
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
@@ -22,7 +22,8 @@ class LQR_Controller(Node):
         # subscribers
         self.estimated_pose = self.create_subscription(PoseStamped, '/ekf_estimated_pose_X', self.pose_callback, qos_profile=qos_profile)
         self.scan = self.create_subscription(LaserScan, '/scan', self.scan_callback, qos_profile=qos_profile)
-
+        self.arcuo_pose = self.create_subscription(PoseWithCovarianceStamped, '/camera/aruco_pose', self.aruco_pose_callback, qos_profile=qos_profile)
+        self.tag_in_view = self.create_subscription(Bool, '/camera/tag_in_view', self.tag_in_view_callback, qos_profile=qos_profile)
         # publishers
         self.cmd_vel = self.create_publisher(Twist, '/cmd_vel', qos_profile=qos_profile)
 
@@ -41,6 +42,10 @@ class LQR_Controller(Node):
         ]
         self.current_waypoint_index = 0
         self.current_scan = None
+        self.arcuo_pose = None
+        self.obstacle_avoidance_flag = True
+        self.tag_in_view = None
+        self.turtlebot_state = 'Navigating'
 
         self.v_ref = 0.18 # m/s
         self.w_ref = 0.2 # rad/s
@@ -82,6 +87,12 @@ class LQR_Controller(Node):
 
     def scan_callback(self, msg: LaserScan):
         self.current_scan = msg
+
+    def aruco_pose_callback(self, msg: PoseWithCovarianceStamped):
+        self.arcuo_pose = msg.pose
+
+    def tag_in_view_callback(self, msg: Bool):
+        self.tag_in_view = msg.data
 
     def compute_lqr_gain(self, v_ref: float):
 
@@ -127,13 +138,13 @@ class LQR_Controller(Node):
         return K
 
     def compute_obstacle_repulsion(self):
-        if self.current_scan is None:
+        if self.current_scan is None or self.obstacle_avoidance_flag is False:
             return 0.0, 0.0
 
         ranges = np.array(self.current_scan.ranges)
         angles = self.current_scan.angle_min + np.arange(len(ranges)) * self.current_scan.angle_increment
 
-        # Restrict cone to front view (-45 to +45 degrees)
+        # Restrict cone to front view (-60 to +60 degrees)
         max_angle = np.deg2rad(60.0)
         valid_mask = (ranges > self.current_scan.range_min) & (ranges < self.minimum_obstacle_dist) & (np.abs(angles) < max_angle)
         
@@ -168,7 +179,7 @@ class LQR_Controller(Node):
                 # Goal Reached: Stop Robot
                 self.publish_cmd(0.0, 0.0)
                 self.get_logger().info(
-                    'Final waypoint reach. Stopping Turtlebot'
+                    'Final waypoint reach. Docking Turtlebot'
                 )
                 return
 

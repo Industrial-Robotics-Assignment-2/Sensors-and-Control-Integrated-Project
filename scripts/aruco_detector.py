@@ -12,6 +12,7 @@ from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
 from tf2_geometry_msgs import do_transform_pose
 from sensor_msgs.msg import CameraInfo, Image
+from std_msgs.msg import Bool
 from tf2_ros import Buffer, TransformException, TransformListener
 
 
@@ -54,6 +55,7 @@ class ArucoDetector(Node):
         self.debug_publisher = self.create_publisher(
             Image, '/camera/aruco_debug', 10
         )
+        self.tag_in_view = self.create_publisher(Bool, '/camera/tag_in_view', 10)
         self.create_subscription(CameraInfo, info_topic, self.camera_info_callback, 10)
         self.create_subscription(
             Image, image_topic, self.image_callback, qos_profile_sensor_data
@@ -91,17 +93,26 @@ class ArucoDetector(Node):
         corners, ids, _ = cv2.aruco.detectMarkers(
             detection_image, self.dictionary
         )
+        tag_bool = Bool()
 
         if ids is not None:
             ids = ids.flatten()
             matching = np.flatnonzero(ids == self.marker_id)
+            tag_bool.data = True
+            self.tag_in_view.publish(tag_bool)
             if matching.size:
                 marker_corners = corners[int(matching[0])] / detection_scale
                 rotation, translation = self._estimate_pose(marker_corners)
                 self._publish_pose(rotation, translation, message)
+                self.get_logger().info(
+                    'Aruco Pose has been published'
+                )
                 cv2.aruco.drawDetectedMarkers(
                     image, [marker_corners], np.array([[self.marker_id]])
                 )
+        else:
+            tag_bool.data = False
+            self.tag_in_view.publish(tag_bool)
 
         if bool(self.get_parameter('publish_debug_image').value):
             debug_message = self.bridge.cv2_to_imgmsg(image, encoding='bgr8')

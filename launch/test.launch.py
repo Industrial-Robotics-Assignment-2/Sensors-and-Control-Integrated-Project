@@ -8,7 +8,8 @@ import xacro
 
 def generate_launch_description():
 
-    pkg_share = get_package_share_directory('Sensors-and-Control-Integrated-Project')
+    pkg_name = 'Sensors-and-Control-Integrated-Project'
+    pkg_share = get_package_share_directory(pkg_name)
     world = os.path.join(pkg_share, 'worlds', 'one_big_box.sdf')
     aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
 
@@ -103,10 +104,37 @@ def generate_launch_description():
             }]
         ),
 
-        ExecuteProcess(
-            cmd=['python3', aruco_script_path],
-            output='screen'
-        ),
+        # ExecuteProcess(
+        #     cmd=['python3', aruco_script_path],
+        #     output='screen'
+        # ),
+
+        # 5. EKF Estimation Node
+        # Node(
+        #     package=pkg_name,
+        #     executable='ekf_node',
+        #     name='turtlebot_ekf',
+        #     output='screen',
+        #     parameters=[{'use_sim_time': True}]
+        # ),
+
+        # # 6. LQR Trajectory Tracking & Obstacle Avoidance Node
+        # Node(
+        #     package=pkg_name,
+        #     executable='lqr_controller',
+        #     name='lqr_controller',
+        #     output='screen',
+        #     parameters=[{'use_sim_time': True}]
+        # ),
+
+        # # 7. ArUco Marker Detector Node
+        # Node(
+        #     package=pkg_name,
+        #     executable='aruco_detector',
+        #     name='aruco_detector',
+        #     output='screen',
+        #     parameters=[{'use_sim_time': True}]
+        # ),
 
         Node(
             package='rviz2',
