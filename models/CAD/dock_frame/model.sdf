@@ -3,23 +3,36 @@
   <model name="dock_frame">
     <static>true</static>  <!-- remove if it should move/fall -->
     <link name="link">
+      <self_collide>false</self_collide>
+      <gravity>1</gravity>
+      <inertial>
+        <mass>1.0</mass>
+        <inertia>
+          <ixx>0.1</ixx>
+          <iyy>0.1</iyy>
+          <izz>0.1</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+        </inertia>
+      </inertial>
       <visual name="visual">
         <geometry>
           <mesh>
-            <uri>model://dock_frame/meshes/dock.STL</uri>
+            <uri>model://dock_frame/meshes/dock_frame.stl</uri>
             <scale>1 1 1</scale>
           </mesh>
         </geometry>
         <material>
-          <ambient>0.6 0.6 0.6 1</ambient>
-          <diffuse>0.8 0.2 0.2 1</diffuse>
+          <ambient>0.75 0.75 0.75 1</ambient>
+          <diffuse>0.95 0.95 0.95 1</diffuse>
+          <specular>0.40 0.40 0.40 1</specular>
+          <emissive>0 0 0 1</emissive>
         </material>
       </visual>
 
       <collision name="collision">
         <geometry>
           <mesh>
-            <uri>model://dock_frame/meshes/dock.STL</uri>
+            <uri>model://dock_frame/meshes/dock_frame.stl</uri>
           </mesh>
         </geometry>
       </collision>

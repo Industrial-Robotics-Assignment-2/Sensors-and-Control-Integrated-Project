@@ -29,6 +29,16 @@ setup(
             glob('models/charging_station/materials/scripts/*')),
         (os.path.join('share', package_name, 'models', 'charging_station', 'materials', 'textures'),
             glob('models/charging_station/materials/textures/*')),
+        (os.path.join('share', package_name, 'models', 'CAD', 'dock_frame'),
+            ['models/CAD/dock_frame/model.config',
+             'models/CAD/dock_frame/model.sdf']),
+        (os.path.join('share', package_name, 'models', 'CAD', 'dock_frame', 'meshes'),
+            glob('models/CAD/dock_frame/meshes/*')),
+        (os.path.join('share', package_name, 'models', 'CAD', 'kitchen'),
+            ['models/CAD/kitchen/model.config',
+             'models/CAD/kitchen/model.sdf']),
+        (os.path.join('share', package_name, 'models', 'CAD', 'kitchen', 'meshes'),
+            glob('models/CAD/kitchen/meshes/*')),
 
         # adds scripts to the package
         (os.path.join('share', package_name, 'scripts'), glob('scripts/*.py')),
