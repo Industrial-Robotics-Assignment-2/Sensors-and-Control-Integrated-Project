@@ -737,6 +737,11 @@
       <pose>2.5 -4.689 0.1375 0 -1.5707963 -1.5707963</pose>
     </include>
     <include>
+      <uri>model://kitchen</uri>
+      <name>kitchen</name>
+      <pose>0 0 0 0 0 -1.178097</pose>
+    </include>
+    <include>
       <uri>model://dock_frame</uri>
       <name>dock_frame</name>
       <pose>2.5 -4.7 0 0 0 -3.141596</pose>
