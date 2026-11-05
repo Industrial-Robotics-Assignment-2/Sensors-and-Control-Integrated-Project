@@ -98,7 +98,7 @@ def generate_launch_description():
         Node(
             package='gazebo_ros',
             executable='spawn_entity.py',
-            arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '-2.1', '-y', '0.0', '-z', '0.01'],
+            arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '-2', '-y', '3.75', '-z', '0.01'],
             output='screen',
             parameters=[{
                 'robot_description': robot_description_config,
