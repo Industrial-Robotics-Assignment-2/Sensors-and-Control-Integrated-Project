@@ -23,7 +23,7 @@ class ArucoDetector(Node):
         super().__init__('aruco_detector')
 
         self.declare_parameter('marker_id', 0)
-        self.declare_parameter('marker_size', 0.80)
+        self.declare_parameter('marker_size', 0.18)
         self.declare_parameter('dictionary', 'DICT_4X4_50')
         self.declare_parameter('image_topic', '/camera/camera_sensor/image_raw')
         self.declare_parameter(
@@ -39,6 +39,7 @@ class ArucoDetector(Node):
         self.marker_size = float(self.get_parameter('marker_size').value)
         dictionary_name = str(self.get_parameter('dictionary').value)
         self.dictionary = self._get_dictionary(dictionary_name)
+        self.detector = self._create_detector(self.dictionary)
         self.bridge = CvBridge()
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -73,6 +74,13 @@ class ArucoDetector(Node):
             raise ValueError(f'Unknown ArUco dictionary: {name}') from exc
         return cv2.aruco.getPredefinedDictionary(dictionary_id)
 
+    @staticmethod
+    def _create_detector(dictionary):
+        if hasattr(cv2.aruco, 'ArucoDetector'):
+            parameters = cv2.aruco.DetectorParameters()
+            return cv2.aruco.ArucoDetector(dictionary, parameters)
+        return None
+
     def camera_info_callback(self, message):
         self.camera_matrix = np.asarray(message.k, dtype=np.float64).reshape(3, 3)
         self.distortion = np.asarray(message.d, dtype=np.float64)
@@ -90,9 +98,12 @@ class ArucoDetector(Node):
             image, None, fx=detection_scale, fy=detection_scale,
             interpolation=cv2.INTER_AREA,
         )
-        corners, ids, _ = cv2.aruco.detectMarkers(
-            detection_image, self.dictionary
-        )
+        if self.detector is not None:
+            corners, ids, _ = self.detector.detectMarkers(detection_image)
+        else:
+            corners, ids, _ = cv2.aruco.detectMarkers(
+                detection_image, self.dictionary
+            )
         tag_bool = Bool()
 
         if ids is not None:

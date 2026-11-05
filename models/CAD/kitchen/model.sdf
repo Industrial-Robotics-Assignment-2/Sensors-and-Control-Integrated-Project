@@ -32,7 +32,7 @@
       <collision name="collision">
         <geometry>
           <mesh>
-            <uri>model://kitchen/meshes/kitchen.stl</uri>
+            <uri>model://kitchen/meshes/kitchen_solid.stl</uri>
           </mesh>
         </geometry>
       </collision>

@@ -356,7 +356,7 @@
     <include>
       <uri>model://charging_station</uri>
       <name>charging_station</name>
-      <pose>2.589 -2.7 0.275 0 -1.5707963 0</pose>
+      <pose>2.589 -2.7 0.1375 0 -1.5707963 0</pose>
     </include>
     <include>
       <uri>model://kitchen</uri>

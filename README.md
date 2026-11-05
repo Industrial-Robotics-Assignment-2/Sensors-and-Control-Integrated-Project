@@ -24,5 +24,5 @@ Detector outputs:
 - `/camera/aruco_pose` (`PoseWithCovarianceStamped`)
 
 The pose output is the charging-station marker pose expressed in `base_link`.
-The marker ID is `0`, its physical side is `0.80 m`, and the detector uses
+The marker ID is `0`, its physical side is `0.18 m`, and the detector uses
 the `DICT_4X4_50` dictionary.
