@@ -54,7 +54,7 @@ class LQR_Controller(Node):
             [2, -7.5, 0],
             [2.5, -7.3, -np.pi / 6],
             [3, -7.2, -np.pi / 6],
-            [3.5, -6.33, 0]
+            [3.5, -6.26, 0]
         ])
         # self.waypoints = np.array([
         #     [1.0, -1.0, 0.0]
