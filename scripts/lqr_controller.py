@@ -36,15 +36,29 @@ class LQR_Controller(Node):
             0.0  # theta
         ])
 
-        # self.waypoints = np.array[ # just for testing change these later
-        #     [1.0, 1.0, 0.0],
-        #     [2.0, 2.0, np.pi / 2],
-        #     [1.0, 1.0, 0.0],
-        #     [0.0, 0.0, np.pi]
-        # ]
-        self.waypoints = np.array([
-            [1.0, -1.0, 0.0]
+        self.waypoints = np.array([ # just for testing change these later
+            [1.0, -0.3, np.pi / 9],
+            [2.0, -0.7, np.pi / 9],
+            [3.0, -1.0, np.pi / 9],
+            [3.5, -1.4, np.pi / 2],
+            [3.5, -2, 11 * np.pi / 18],
+            [2.8, -3, np.pi],
+            [2.3, -3.15, 5 * np.pi / 6],
+            [1.8, -3.3, 5 * np.pi / 6],
+            [1.3, -3.5, 5 * np.pi / 6],
+            [0.8, -3.9, 3 * np.pi / 4],
+            [0.5, -4.8, np.pi * 5 / 8],
+            [0.9, -5.4, np.pi * 5 / 8],
+            [1.2, -6, np.pi * 5 / 8],
+            [1.6, -6.8, np.pi * 5 / 8],
+            [2, -7.5, 0],
+            [2.5, -7.3, -np.pi / 6],
+            [3, -7.2, -np.pi / 6],
+            [3.75, -6.4, 0]
         ])
+        # self.waypoints = np.array([
+        #       [1.0, -1.0, 0.0]
+        #   ])
         self.current_waypoint_index = 0
         self.current_scan = None
         self.latest_aruco_pose = None
