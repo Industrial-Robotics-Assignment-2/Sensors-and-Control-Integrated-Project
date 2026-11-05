@@ -36,7 +36,7 @@ class LQR_Controller(Node):
             0.0  # theta
         ])
 
-        # self.waypoints = [ # just for testing change these later
+        # self.waypoints = np.array[ # just for testing change these later
         #     [1.0, 1.0, 0.0],
         #     [2.0, 2.0, np.pi / 2],
         #     [1.0, 1.0, 0.0],
