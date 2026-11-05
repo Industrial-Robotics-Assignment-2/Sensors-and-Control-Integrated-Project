@@ -237,7 +237,7 @@ class LQR_Controller(Node):
             self.turtlebot_state = 'SEARCHING'
             return
 
-        target = self.get_staging_pose(4.0) # for some fucking reason this number needs to be way higher than it actually is
+        target = self.get_staging_pose(4.0) # <- distance from dock. for some fucking reason this number needs to be way higher than it actually is
         reached = self.go_to_point(target)
 
         if reached:
