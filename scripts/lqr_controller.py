@@ -36,7 +36,7 @@ class LQR_Controller(Node):
             0.0  # theta
         ])
 
-        # self.waypoints = [ # just for testing change these later
+        # self.waypoints = np.array[ # just for testing change these later
         #     [1.0, 1.0, 0.0],
         #     [2.0, 2.0, np.pi / 2],
         #     [1.0, 1.0, 0.0],
@@ -101,16 +101,6 @@ class LQR_Controller(Node):
         self.current_scan = msg
 
     def aruco_pose_callback(self, msg: PoseWithCovarianceStamped):
-        # x = msg.pose.pose.position.x
-        # y = msg.pose.pose.position.y
-
-        # # Convert quaternion (q_z, q_w) back to yaw heading (theta)
-        # qz = msg.pose.pose.orientation.z
-        # qw = msg.pose.pose.orientation.w
-        # theta = 2.0 * np.arctan2(qz, qw)
-
-        # pose = np.array([x,y,theta])
-        # self.latest_aruco_pose = pose
 
         pos = msg.pose.pose.position
         ori = msg.pose.pose.orientation
@@ -247,48 +237,29 @@ class LQR_Controller(Node):
             self.turtlebot_state = 'SEARCHING'
             return
 
-        target = self.get_staging_pose(0.60)
-        # target = np.array([1.5, -1.0, np.deg2rad(-90.0)])
+        target = self.get_staging_pose(4.0) # <- distance from dock. for some fucking reason this number needs to be way higher than it actually is
         reached = self.go_to_point(target)
 
         if reached:
             self.get_logger().info(
                 'Aligned Turtlebot for docking, initialising DOCKING'
             )
+            self.publish_cmd(0.0, 0.0)
             self.turtlebot_state = 'DOCKING'
-
-        pass
 
     def docking_loop(self):
         """Visual servoing controller driving precisely into the charging dock."""
-        if not self.tag_in_view or self.latest_aruco_pose is None:
-            self.get_logger().warning('Lost ArUco tag sight during docking! Re-searching...')
-            self.turtlebot_state = 'SEARCHING'
-            return
 
-        # Extract relative marker position in base_link frame
-        tag_x = self.latest_aruco_pose[0]  # Distance forward to marker
-        tag_y = self.latest_aruco_pose[1]  # Lateral offset (+ left, - right)
+        front_range = self.current_scan.ranges[0]
 
-        # Target angle offset to center of marker
-        angle_to_tag = np.arctan2(tag_y, tag_x)
-
-        # Stop Check: Terminal docking threshold
-        if tag_x <= self.dock_stop_dist:
-            self.get_logger().info('CHARGING DOCK ENGAGED! Robot docked successfully.')
-            self.turtlebot_state = 'DOCKED'
+        if front_range < 0.15:
             self.publish_cmd(0.0, 0.0)
-            return
-
-        # Visual Servoing Controls
-        w_cmd = self.k_dock_w * angle_to_tag
-        v_cmd = self.k_dock_v * tag_x
-
-        # Speed limits during docking
-        v_cmd = float(np.clip(v_cmd, 0.02, 0.10))  # Slow controlled creep into dock
-        w_cmd = float(np.clip(w_cmd, -0.6, 0.6))
-
-        self.publish_cmd(v_cmd, w_cmd)
+            self.turtlebot_state = 'DOCKED'
+            self.get_logger().info(
+                'Turtlebot had docked. Track Complete.'
+            )
+        else:
+            self.publish_cmd(0.15, 0.0)
 
     def publish_cmd(self, v: float, w: float):
         twist = Twist()
@@ -360,44 +331,26 @@ class LQR_Controller(Node):
     def get_staging_pose(self, d_standoff: float = 0.60) -> np.ndarray:
         """Computes the target pose directly along the tag's normal in the global frame."""
 
-        # # 1. T_O^B: Robot pose in World/Odom frame
-        # rx, ry, rtheta = self.current_pose
-        # T_O_B = self.create_se2_matrix(rx, ry, rtheta)
-
-        # # 2. T_B^D: Dock pose in Robot (base_link) frame
-        # dx, dy, dtheta = self.latest_aruco_pose
-        # T_B_D = self.create_se2_matrix(dx, dy, dtheta)
-
-        # # 3. T_D^L: Staging pose in Dock frame (d_standoff out along normal, rotated to face dock)
-        # T_D_L = self.create_se2_matrix(d_standoff, 0.0, np.pi)
-
-        # # 4. T_O^L = T_O^B * T_B^D * T_D^L
-        # T_O_L = T_O_B @ T_B_D @ T_D_L
-
-        # # Extract target (x, y, theta) in global frame
-        # target_x = T_O_L[0, 2]
-        # target_y = T_O_L[1, 2]
-        # target_theta = np.arctan2(T_O_L[1, 0], T_O_L[0, 0])
-
-        # return np.array([target_x, target_y, target_theta])
-
+        # 1. T_O^B: Robot pose in World/Odom frame
         rx, ry, rtheta = self.current_pose
-        tag_x, tag_y, normal_yaw = self.latest_aruco_pose
+        T_O_B = self.create_se2_matrix(rx, ry, rtheta)
 
-        # 1. Staging point in base_link (d_standoff out along the +Z tag normal vector)
-        nx, ny = self.latest_aruco_normal_vec
-        local_target_x = tag_x + d_standoff * nx
-        local_target_y = tag_y + d_standoff * ny
-        
-        # Target heading faces back TOWARD the dock (opposite of normal vector)
-        local_target_theta = self.wrap_angle(normal_yaw + np.pi)
+        # 2. T_B^D: Dock pose in Robot (base_link) frame
+        dx, dy, dtheta = self.latest_aruco_pose
+        T_B_D = self.create_se2_matrix(dx, dy, dtheta)
 
-        # 2. Transform local base_link staging point to global (odom) frame
-        global_target_x = rx + local_target_x * np.cos(rtheta) - local_target_y * np.sin(rtheta)
-        global_target_y = ry + local_target_x * np.sin(rtheta) + local_target_y * np.cos(rtheta)
-        global_target_theta = self.wrap_angle(rtheta + local_target_theta)
+        # 3. T_D^L: Staging pose in Dock frame (d_standoff out along normal, rotated to face dock)
+        T_D_L = self.create_se2_matrix(d_standoff, 0.0, np.pi)
 
-        return np.array([global_target_x, global_target_y, global_target_theta])
+        # 4. T_O^L = T_O^B * T_B^D * T_D^L
+        T_O_L = T_O_B @ T_B_D @ T_D_L
+
+        # Extract target (x, y, theta) in global frame
+        target_x = T_O_L[0, 2]
+        target_y = T_O_L[1, 2]
+        target_theta = np.arctan2(T_O_L[1, 0], T_O_L[0, 0])
+
+        return np.array([target_x, target_y, target_theta])
 
     @staticmethod
     def wrap_angle(angle: float):
