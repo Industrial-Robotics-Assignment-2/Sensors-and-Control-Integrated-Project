@@ -734,7 +734,7 @@
     <include>
       <uri>model://charging_station</uri>
       <name>charging_station</name>
-      <pose>-1.0 -1.989 0.1375 0 -1.5707963 -1.5707963</pose>
+      <pose>2.5 -4.689 0.1375 0 -1.5707963 -1.5707963</pose>
     </include>
     <include>
       <uri>model://kitchen</uri>
@@ -744,7 +744,7 @@
     <include>
       <uri>model://dock_frame</uri>
       <name>dock_frame</name>
-      <pose>-1.0 -2 0 0 0 -3.141596</pose>
+      <pose>2.5 -4.7 0 0 0 -3.141596</pose>
     </include>
     <state world_name='default'>
       <sim_time>508 452000000</sim_time>
