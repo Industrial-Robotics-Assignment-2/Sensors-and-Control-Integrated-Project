@@ -10,7 +10,7 @@ def generate_launch_description():
 
     pkg_name = 'Sensors-and-Control-Integrated-Project'
     pkg_share = get_package_share_directory(pkg_name)
-    world = os.path.join(pkg_share, 'worlds', 'final_env.sdf')
+    world = os.path.join(pkg_share, 'worlds', 'docking test.sdf')
     aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
     ekf_path = os.path.join(pkg_share, 'scripts', 'ekf_node.py')
     lqr_path = os.path.join(pkg_share, 'scripts', 'lqr_controller.py')
