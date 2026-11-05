@@ -36,15 +36,29 @@ class LQR_Controller(Node):
             0.0  # theta
         ])
 
-        # self.waypoints = np.array[ # just for testing change these later
-        #     [1.0, 1.0, 0.0],
-        #     [2.0, 2.0, np.pi / 2],
-        #     [1.0, 1.0, 0.0],
-        #     [0.0, 0.0, np.pi]
-        # ]
-        self.waypoints = np.array([
-            [1.0, -1.0, 0.0]
+        self.waypoints = np.array([ # just for testing change these later
+            [1.0, -0.3, np.pi / 9],
+            [2.0, -0.7, np.pi / 9],
+            [3.0, -1.0, np.pi / 9],
+            [3.5, -1.4, np.pi / 2],
+            [3.5, -2, 11 * np.pi / 18],
+            [2.8, -3, 7 * np.pi / 8],
+            [2.3, -3.15, 5 * np.pi / 6],
+            [1.8, -3.3, 5 * np.pi / 6],
+            [1.3, -3.5, 5 * np.pi / 6],
+            [0.8, -3.9, 3 * np.pi / 4],
+            [0.5, -4.8, np.pi * 5 / 8],
+            [0.9, -5.4, np.pi * 5 / 8],
+            [1.2, -6, np.pi * 5 / 8],
+            [1.6, -6.8, np.pi * 5 / 8],
+            [2, -7.5, 0],
+            [2.5, -7.3, -np.pi / 6],
+            [3, -7.2, -np.pi / 6],
+            [3.75, -6.4, 0]
         ])
+        # self.waypoints = np.array([
+        #     [1.0, -1.0, 0.0]
+        # ])
         self.current_waypoint_index = 0
         self.current_scan = None
         self.latest_aruco_pose = None
@@ -238,7 +252,7 @@ class LQR_Controller(Node):
             return
 
         target = self.get_staging_pose(4.0) # <- distance from dock. for some fucking reason this number needs to be way higher than it actually is
-        reached = self.go_to_point(target)
+        reached = self.go_to_point(target, True)
 
         if reached:
             self.get_logger().info(
@@ -267,7 +281,7 @@ class LQR_Controller(Node):
         twist.angular.z = w
         self.cmd_vel.publish(twist)
 
-    def go_to_point(self, target: npt.NDArray[np.float64]):
+    def go_to_point(self, target: npt.NDArray[np.float64], enforce_heading: bool=False):
         if target.size != 3:
             self.get_logger().error(
                 'Goal passed is not of the right format. Goals must be NDArray[float64] and structured to be [x, y, theta]'
@@ -277,11 +291,17 @@ class LQR_Controller(Node):
         dx, dy, _ = target - self.current_pose
         theta = self.current_pose[2]
         goal_dist = np.hypot(dx, dy)
-        angle_diff = theta - target[2]
+        angle_diff = self.wrap_angle(theta - target[2])
 
         # Check if target tolerance is reached
-        if goal_dist < self.goal_tolerance and angle_diff < self.minimum_angle_diff:
-            return True
+        if enforce_heading:
+            # Used only during ALIGNING stage
+            if goal_dist < self.goal_tolerance and abs(angle_diff) < self.minimum_angle_diff:
+                return True
+        else:
+            # Used during NAVIGATING track mode
+            if goal_dist < self.goal_tolerance:
+                return True
 
         if goal_dist > 0.35:
             target_heading = np.arctan2(dy, dx)
