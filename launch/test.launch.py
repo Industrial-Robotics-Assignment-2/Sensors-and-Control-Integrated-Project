@@ -10,7 +10,7 @@ def generate_launch_description():
 
     pkg_name = 'Sensors-and-Control-Integrated-Project'
     pkg_share = get_package_share_directory(pkg_name)
-    world = os.path.join(pkg_share, 'worlds', 'final_env.sdf')
+    world = os.path.join(pkg_share, 'worlds', 'docking test.sdf')
     aruco_script_path = os.path.join(pkg_share, 'scripts', 'aruco_detector.py')
     ekf_path = os.path.join(pkg_share, 'scripts', 'ekf_node.py')
     lqr_path = os.path.join(pkg_share, 'scripts', 'lqr_controller.py')
@@ -98,7 +98,8 @@ def generate_launch_description():
         Node(
             package='gazebo_ros',
             executable='spawn_entity.py',
-            arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '-2', '-y', '3.75', '-z', '0.01'],
+            # arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '-2', '-y', '3.75', '-z', '0.01'],
+            arguments=['-entity', 'turtlebot3', '-file', sdf_file, '-x', '-2.1', '-y', '0.0', '-z', '0.01'],
             output='screen',
             parameters=[{
                 'robot_description': robot_description_config,

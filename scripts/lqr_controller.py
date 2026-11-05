@@ -247,8 +247,8 @@ class LQR_Controller(Node):
             self.turtlebot_state = 'SEARCHING'
             return
 
-        # target = self.get_staging_pose(0.60)
-        target = np.array([1.5, -1.0, np.deg2rad(-90.0)])
+        target = self.get_staging_pose(0.60)
+        # target = np.array([1.5, -1.0, np.deg2rad(-90.0)])
         reached = self.go_to_point(target)
 
         if reached:
