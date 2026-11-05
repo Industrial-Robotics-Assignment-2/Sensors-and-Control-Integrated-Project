@@ -359,8 +359,9 @@ class LQR_Controller(Node):
         dx, dy, dtheta = self.latest_aruco_pose
         T_B_D = self.create_se2_matrix(dx, dy, dtheta)
 
-        # 3. T_D^L: Staging pose in Dock frame (d_standoff out along normal, rotated to face dock)
-        T_D_L = self.create_se2_matrix(d_standoff, 0.0, np.pi)
+        # 3. T_D^L: The detected marker normal points toward the back of the
+        # station in this model, so approach from the opposite side.
+        T_D_L = self.create_se2_matrix(-d_standoff, 0.0, np.pi)
 
         # 4. T_O^L = T_O^B * T_B^D * T_D^L
         T_O_L = T_O_B @ T_B_D @ T_D_L
