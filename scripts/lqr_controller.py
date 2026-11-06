@@ -39,22 +39,22 @@ class LQR_Controller(Node):
         self.waypoints = np.array([ # just for testing change these later
             # [1.0, -0.3, np.pi / 9],   #0
             # [2.0, -0.7, np.pi / 9],   #1
-            [3.0, -1.0, np.pi / 9],     #2
+            [3.0, -1.0, np.pi / 9],     #2 - BENCH CORNER
             # [3.5, -1.4, np.pi / 2],     #3
-            [3.5, -2, 11 * np.pi / 18], #4
+            [3.5, -2, 11 * np.pi / 18], #4 - AROUND BENCH
             # [2.8, -3, 7 * np.pi / 8],   #5
-            [2.3, -3.15, 5 * np.pi / 6],#6
+            [2.3, -3.15, 5 * np.pi / 6],#6 - OTHER BENCH CORNER
             # [1.8, -3.3, 5 * np.pi / 6], #7
             # [1.3, -3.5, 5 * np.pi / 6], #8
-            [0.8, -3.9, 3 * np.pi / 4], #9
+            [0.8, -3.9, 3 * np.pi / 4], #9 - FRONT OF TABLE
             # [0.7, -4.5, np.pi * 5 / 8], #10
             # [1.1, -5.3, np.pi * 5 / 8], #11
             # [1.2, -6, np.pi * 5 / 8],   #12
-            [1.6, -6.8, np.pi * 5 / 8], #13
+            [1.6, -6.8, np.pi * 5 / 8], #13 - BACK OF TABLE
             # [2, -7.5, 0],               #14
             # [2.5, -7.3, -np.pi / 6],    #15
             # [3, -7.2, -np.pi / 6],      #16
-            [3.5, -6.26, 0]             #17
+            [3.5, -6.26, 0]             #17 - END
         ])
         # self.waypoints = np.array([
         #     [1.0, -1.0, 0.0]
