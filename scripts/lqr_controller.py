@@ -54,7 +54,7 @@ class LQR_Controller(Node):
             # [2, -7.5, 0],               #14
             # [2.5, -7.3, -np.pi / 6],    #15
             # [3, -7.2, -np.pi / 6],      #16
-            [3.5, -6.26, 0]             #17 - END
+            [2.5, -6.26, 0]             #17 - END
         ])
         # self.waypoints = np.array([
         #     [1.0, -1.0, 0.0]
@@ -251,7 +251,7 @@ class LQR_Controller(Node):
             self.turtlebot_state = 'SEARCHING'
             return
 
-        target = self.get_staging_pose(0.5) # <- distance from dock. value needed will fluctuate if there is a mismatch in the true and stated aruco tag sizes in aruco_detector.py :) <3
+        target = self.get_staging_pose(1.0) # <- distance from dock. value needed will fluctuate if there is a mismatch in the true and stated aruco tag sizes in aruco_detector.py :) <3
         reached = self.go_to_point(target, True)
 
         if reached:

@@ -247,7 +247,7 @@
     </model>
     <model name='east_bound'>
       <static>1</static>
-      <pose>0 4.8 1 0 -0 0</pose>
+      <pose>0 3.8 1 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>1</mass>
@@ -301,7 +301,7 @@
     </model>
     <model name='west_bound'>
       <static>1</static>
-      <pose>0 -4.8 1 0 -0 0</pose>
+      <pose>0 -3.8 1 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>1</mass>
@@ -429,7 +429,7 @@
     </include>
     <model name='lamp_box'>
       <static>1</static>
-      <pose>2 4 0.4 0 -0 0</pose>
+      <pose>2 3 0.4 0 -0 0</pose>
       <link name='link'>
         <inertial>
           <mass>1</mass>
@@ -484,7 +484,7 @@
     <include>
       <uri>model://lamp</uri>
       <name>lamp</name>
-      <pose>2 4 0.8 0 0 0</pose>
+      <pose>2 3 0.8 0 0 0</pose>
     </include>
     <include>
       <uri>model://bedroom</uri>
