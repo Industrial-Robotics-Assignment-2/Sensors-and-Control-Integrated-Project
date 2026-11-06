@@ -191,7 +191,7 @@ ros2 launch Sensors-and-Control-Integrated-Project camera_test.launch.py
 ## Individual contributions
 
 - **Liam Dascalos:** **Designed the lqr_controller and set up the LiDar, as well as working on testing and debugging most of the system**
-- **[Member 2]:** **Designed the environment and obstacles within it, and worked on debugging**
+- **Cody Frank:** **Designed the environment and obstacles within it, and worked on debugging**
 - **Alex Vella:** **Implemented the camera and ArUco detection logic**
 
 ## Video of demonstration:
