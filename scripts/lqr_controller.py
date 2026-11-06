@@ -37,24 +37,24 @@ class LQR_Controller(Node):
         ])
 
         self.waypoints = np.array([ # just for testing change these later
-            [1.0, -0.3, np.pi / 9],
-            [2.0, -0.7, np.pi / 9],
-            [3.0, -1.0, np.pi / 9],
-            [3.5, -1.4, np.pi / 2],
-            [3.5, -2, 11 * np.pi / 18],
-            [2.8, -3, 7 * np.pi / 8],
-            [2.3, -3.15, 5 * np.pi / 6],
-            [1.8, -3.3, 5 * np.pi / 6],
-            [1.3, -3.5, 5 * np.pi / 6],
-            [0.8, -3.9, 3 * np.pi / 4],
-            [0.7, -4.5, np.pi * 5 / 8],
-            [1.1, -5.3, np.pi * 5 / 8],
-            [1.2, -6, np.pi * 5 / 8],
-            [1.6, -6.8, np.pi * 5 / 8],
-            [2, -7.5, 0],
-            [2.5, -7.3, -np.pi / 6],
-            [3, -7.2, -np.pi / 6],
-            [3.5, -6.26, 0]
+            # [1.0, -0.3, np.pi / 9],   #0
+            # [2.0, -0.7, np.pi / 9],   #1
+            [3.0, -1.0, np.pi / 9],     #2
+            # [3.5, -1.4, np.pi / 2],     #3
+            [3.5, -2, 11 * np.pi / 18], #4
+            # [2.8, -3, 7 * np.pi / 8],   #5
+            [2.3, -3.15, 5 * np.pi / 6],#6
+            # [1.8, -3.3, 5 * np.pi / 6], #7
+            # [1.3, -3.5, 5 * np.pi / 6], #8
+            [0.8, -3.9, 3 * np.pi / 4], #9
+            # [0.7, -4.5, np.pi * 5 / 8], #10
+            # [1.1, -5.3, np.pi * 5 / 8], #11
+            # [1.2, -6, np.pi * 5 / 8],   #12
+            [1.6, -6.8, np.pi * 5 / 8], #13
+            # [2, -7.5, 0],               #14
+            # [2.5, -7.3, -np.pi / 6],    #15
+            # [3, -7.2, -np.pi / 6],      #16
+            [3.5, -6.26, 0]             #17
         ])
         # self.waypoints = np.array([
         #     [1.0, -1.0, 0.0]
@@ -251,7 +251,7 @@ class LQR_Controller(Node):
             self.turtlebot_state = 'SEARCHING'
             return
 
-        target = self.get_staging_pose(4.0) # <- distance from dock. for some fucking reason this number needs to be way higher than it actually is
+        target = self.get_staging_pose(0.5) # <- distance from dock. value needed will fluctuate if there is a mismatch in the true and stated aruco tag sizes in aruco_detector.py :) <3
         reached = self.go_to_point(target, True)
 
         if reached:
@@ -361,7 +361,7 @@ class LQR_Controller(Node):
 
         # 3. T_D^L: The detected marker normal points toward the back of the
         # station in this model, so approach from the opposite side.
-        T_D_L = self.create_se2_matrix(-d_standoff, 0.0, np.pi)
+        T_D_L = self.create_se2_matrix(d_standoff, 0.0, np.pi)
 
         # 4. T_O^L = T_O^B * T_B^D * T_D^L
         T_O_L = T_O_B @ T_B_D @ T_D_L
